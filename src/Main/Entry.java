@@ -73,8 +73,6 @@ public class Entry {
 
 		replayer.results();
 		//s.close();
-
-
 	}
 	
 	public static void AttributeValue(){
