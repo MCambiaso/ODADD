@@ -4,7 +4,7 @@ package Utils;
 
 public class ComputeKPI {
 
-	public double[] ComputeKPI(String HTOut) {
+	public double[] ComputeKpi(String HTOut) {
 		String firstNum[]=null, secondNum[]=null, Num[]=null;
 
 		double ratioFul = 0.0, activation = 0.0;

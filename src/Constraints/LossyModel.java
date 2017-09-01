@@ -63,12 +63,12 @@ public class LossyModel {
 		
 		long stop = System.currentTimeMillis();
 		
+		System.out.println("Lossy:"+(stop-start));
 		return mm;
-		//System.out.println("Lossy:"+(stop-start));
 	}
 	
 	public void clean(){
-		
+		long start = System.currentTimeMillis();
 		for(String A: mm.keySet()){
 			ArrayList<String> deleted = new ArrayList<String>();
 			for(String B: mm.get(A).keySet()){
@@ -79,6 +79,8 @@ public class LossyModel {
 			mm.get(A).remove(deleted);
 			//colleziono le b e le rimuovo dopo il for
 		}
+		long stop = System.currentTimeMillis();
+		System.out.println("Clean:\t"+(stop-start));
 	}
 	
 	//********** Create and feed the Hoeffding tree **********
@@ -122,72 +124,72 @@ public class LossyModel {
 		return hf;
 	}
 		
-		public static boolean isNumeric(String str)  
+	public static boolean isNumeric(String str)  
+	{  
+		try  
 		{  
-			try  
-			{  
-//				double d = Double.parseDouble(str);  
-				Double.parseDouble(str);
-			}  
-			catch(NumberFormatException nfe)  
-			{  
-				return false;  
-			}  
-			return true;  
-		}
+//			double d = Double.parseDouble(str);  
+			Double.parseDouble(str);
+		}  
+		catch(NumberFormatException nfe)  
+		{  
+			return false;  
+		}  
+		return true;  
+	}
 		
-		//********** Create new instance for the rule just discovered **********
-		public Instance createInstance(String name, int classAt){
+	//********** Create new instance for the rule just discovered **********
+	public Instance createInstance(String name, int classAt){
 
-			Instances instse;
-			if(!instanceForTree.containsKey(name)){
-				instse = new Instances(name, myAttr, 1000);
+		Instances instse;
+		if(!instanceForTree.containsKey(name)){
+			instse = new Instances(name, myAttr, 1000);
+		}else{
+			instse = instanceForTree.get(name);
+		}
+		//		double[] instanceValue = new double[myAttr.size()];
+		int n=0;
+		InstancesHeader ih = new InstancesHeader(instse);
+		DenseInstance instance = new DenseInstance(66);// 64
+		instance.setDataset(ih);
+		for(Attribute attr : myAttr){	
+			String attrName = attr.name();
+			if(attrName.contains("class")){
+				//					instanceValue[n] = classAt;
+				instance.setValue(n, classAt);
 			}else{
-				instse = instanceForTree.get(name);
-			}
-			//		double[] instanceValue = new double[myAttr.size()];
-			int n=0;
-			InstancesHeader ih = new InstancesHeader(instse);
-			DenseInstance instance = new DenseInstance(66);// 64
-			instance.setDataset(ih);
-			for(Attribute attr : myAttr){	
-				String attrName = attr.name();
-				if(attrName.contains("class")){
-//					instanceValue[n] = classAt;
-					instance.setValue(n, classAt);
-				}else{
-					if(attribute.containsKey(attrName)){
-						//System.out.println(isNumeric(attribute.get(attrName).toString()));
-						if(!isNumeric(attribute.get(attrName).toString())|| attrName.equals("Activity code") || attrName.equals("Specialism code") ){//
-							//					instanceValue[n] = attIndex.get(attrName);
+				if(attribute.containsKey(attrName)){
+					//System.out.println(isNumeric(attribute.get(attrName).toString()));
+					if(!isNumeric(attribute.get(attrName).toString())|| attrName.equals("Activity code") || attrName.equals("Specialism code") ){//
+						//					instanceValue[n] = attIndex.get(attrName);
 
-							instance.setValue(attr, attIndex.get(attrName));
+						instance.setValue(attr, attIndex.get(attrName));
 
-						}else{
-							double tt = (double) attribute.get(attrName);
-							//					instanceValue[n] = tt; //(double) attribute.get(attrName);
-							instance.setValue(n, tt);
-						}
-					}
-
-					try{
+					}else{
 						double tt = (double) attribute.get(attrName);
+						//					instanceValue[n] = tt; //(double) attribute.get(attrName);
 						instance.setValue(n, tt);
-						//System.out.println(tt);
-					}catch(Exception e) {
-						instance.setValue(n, 88.88);
-						//System.out.println(attribute.get(attrName));
 					}
 				}
-				n++;
-			}
-			
-			instse.add(instance);
-			//System.out.println(instse);
-			instanceForTree.put(name, instse);
 
-			return instance;
+				try{
+					double tt = (double) attribute.get(attrName);
+					instance.setValue(n, tt);
+					//System.out.println(tt);
+				}catch(Exception e) {
+					instance.setValue(n, 88.88);
+					//System.out.println(attribute.get(attrName));
+				}
+			}
+			n++;
 		}
+
+		instse.add(instance);
+		//System.out.println(instse);
+		instanceForTree.put(name, instse);
+
+		return instance;
+	}
 	
 		
 	public void printModell(){}

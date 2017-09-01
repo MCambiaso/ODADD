@@ -23,29 +23,28 @@ import moa.classifiers.trees.HoeffdingTree;
 import LossyCounting.LossyCounting;
 import LossyCounting.LCTemplateReplayer;
 import Utils.ComputeKPI;
-//import prompt.onlinedeclare.utils.DeclareModel;
+
 import Utils.Pair;
 import Utils.Utils;
 
 import com.yahoo.labs.samoa.instances.*;
 
-import moa.classifiers.trees.HoeffdingTree;
 import moa.core.*;
 
 public class AlternatePrecedence implements LCTemplateReplayer {
 	
 	private HashMap<String, Instances> instanceForTree = new HashMap<String, Instances>();
 	private HashMap<String, Object> attribute;
-	private HashMap<String, ArrayList<String>> nominal = new HashMap<String, ArrayList<String>>();
+//	private HashMap<String, ArrayList<String>> nominal = new HashMap<String, ArrayList<String>>();
 	ArrayList<Attribute> myAttr = new ArrayList<Attribute>(20);
 	ArrayList<Attribute> myAttrTr ;
 	private HashMap<String, Integer> attIndex = new HashMap<String, Integer>();
 	
 	boolean first = true, fulf = true;
 	private Model modello = new Model();
-	private HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
+	private static HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
 	private LossyModel mod = new LossyModel();
-	int nr = 0, en=0, cc=5;
+	int nr = 0, en=0, cc=10;
 
 	private HashSet<String> activityLabelsAltPrecedence = new HashSet<String>();
 	private LossyCounting<HashMap<String, Integer>> activityLabelsCounterAltPrecedence = new LossyCounting<HashMap<String, Integer>>();
@@ -53,10 +52,10 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 	private LossyCounting<HashMap<String, HashMap<String, Integer>>> satisfactionsConstraintsPerTrace = new LossyCounting<HashMap<String, HashMap<String, Integer>>>();
 	private LossyCounting<HashMap<String, HashMap<String, Boolean>>> isDuplicatedActivationPerTrace = new LossyCounting<HashMap<String, HashMap<String, Boolean>>>();
 
-	File file = new File("/home/matte/Scrivania/Out/OutAltPrecedence.txt");
+	File file = new File("/home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/Results/OutAltPrecedence.txt");
 	FileWriter fw = null;
 	BufferedWriter brf;
-	PrintWriter printout;{			
+	static PrintWriter printout;{			
 	try {
 		fw = new FileWriter(file);
 	} catch (IOException e2) {
@@ -99,7 +98,7 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 
 	@Override
 	public void process(XEvent eve, XTrace tr, HashMap<String, ArrayList<String>> nomin, Integer bucketWidth) {
-//		Model modello = model;
+
 		int currentBucket , pp=0;
 		long start = System.currentTimeMillis();
 		long start1, start2, start3, start4, start5, stop1, stop2, stop3, stop4, stop5, time=0;
@@ -397,91 +396,26 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 		}
 		activityLabelsCounterAltPrecedence.putItem(caseId, counter);
 		
-		if(en==199999){ //instanceForTree.get(name).numInstances()>1000
-			double fulfill = 0;
-			//double viol = 0;
-			double act = 0;
-			for(String caseID : activityLabelsCounterAltPrecedence.keySet()) {
-				HashMap<String, Integer> Counter = activityLabelsCounterAltPrecedence.getItem(caseID);
-				HashMap<String, HashMap<String, Integer>> fulfillForThisTrace = fulfilledConstraintsPerTraceAlt.getItem(caseID);
-
-				if(Counter.containsKey("b-null")){
-					double totnumber = Counter.get("b-null");
-					act = act + totnumber;
-					if(fulfillForThisTrace.containsKey("a-null")){
-						if(fulfillForThisTrace.get("a-null").containsKey("b-null")){	
-							//double stillpending = fulfillForThisTrace.get(param1).get(param2);
-							fulfill = fulfill + fulfillForThisTrace.get("a-null").get("b-null");
-							//viol = viol + stillpending;
-						}
-					}
-				}
-
-			}
-			
-			for(String prHF : modello.hoeffCollection.keySet()){ 				
-				ComputeKPI ckpi = new ComputeKPI();
-				Measurement[] measurement = modello.hoeffCollection.get(prHF).getModelMeasurements();
-				if(measurement[0].getValue() >= 10){
-//  					printout.println("@@@@@@@@@@@@\n"+prHF+"\n"+modello.hoeffCollection.get(prHF).toString());
-//				if(measurement[0].getValue() >= 20 && measurement[3].getValue() > 0){
-					try {
-//						printout.println("@@@@@@@@@@@@\n"+prHF+"\n"+modello.hoeffCollection.get(prHF).toString());
-						double[] out = ckpi.ComputeKPI(modello.hoeffCollection.get(prHF).toString());
-//						printout.println("act: "+out[0]+"\tratio: "+out[1]);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}	
-			System.out.println("AltPrec"+"\t"+fulfill+"\t"+(act-fulfill));
-//			printout.flush();
-//			printout.close();
-//			for(String name : numberViolFul.keySet()){
-//				printout.println("@@@@@@@@@@@@\n"+name+"\t"+numberViolFul.get(name).getFirst()+", "+numberViolFul.get(name).getSecond());
-//			}
-		}
+		
 		//System.out.println(en);
 //		System.out.println("AltPr:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time);
-		printout.println(System.currentTimeMillis()-start);
-		printout.flush();
+//		printout.println(System.currentTimeMillis()-start);
+//		printout.flush();
 //		printout.close();
 		
 	}
 	
-
-	public void HF(String name, Instance instance, Model modello){
-		if(!modello.hoeffCollection.containsKey(name)){ //instanceForTree.get(name).numInstances()>=5 && 
-			HoeffdingTree hf = new HoeffdingTree();							
-			
-				Instances in = instanceForTree.get(name);
-				InstancesHeader ih = new InstancesHeader(in);
-				in.setClassIndex(0);
-
-				Attribute prova = in.attribute("class");
-
-				hf.prepareForUse();
-				
-				hf.setModelContext(ih);
-				hf.leafpredictionOption.setChosenLabel("MC");
-				hf.gracePeriodOption.setValue(2);
-				hf.splitConfidenceOption.setValue(1.0E-2);
-
-				hf.trainOnInstance(instance);
-				modello.hoeffCollection.put(name, hf);
-
-		}else if(modello.hoeffCollection.containsKey(name)){ //instanceForTree.get(name).numInstances()>numInstUpdate && 
-			
-//				hoeffCollection.get(name).updateClassifier(instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)); //instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)
-				Instances in = instanceForTree.get(name);
-				
-				in.setClassIndex(0);
-				modello.hoeffCollection.get(name).trainOnInstance(instance);
-				
-//				modello.hoeffCollection.get(name).updateClassifier(instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)); //instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)
-				instanceForTree.get(name).delete(instanceForTree.get(name).numInstances()-1);
-			
-		}
+	@Override
+	public void results(){
+		for(String aEvent : mc.keySet()){ 
+			for(String bEvent : mc.get(aEvent).keySet()){
+				printout.println("@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
+				printout.println(mc.get(aEvent).get(bEvent).getElement1());
+			}
+		}	
+//			System.out.println("AltPrec"+"\t"+fulfill+"\t"+(act-fulfill));
+			printout.flush();
+			printout.close();
 	}
 	
 	public static boolean isNumeric(String str)  
@@ -497,89 +431,6 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 		}  
 		return true;  
 	}
-	
-	public Instance createInstance(String name, int classAt){
-
-		Instances instse;
-		if(!instanceForTree.containsKey(name)){
-			instse = new Instances(name, myAttr, 1000);
-		}else{
-			instse = instanceForTree.get(name);
-		}
-		//		double[] instanceValue = new double[myAttr.size()];
-		int n=0;
-		InstancesHeader ih = new InstancesHeader(instse);
-		DenseInstance instance = new DenseInstance(66);
-		instance.setDataset(ih);
-		for(Attribute attr : myAttr){	
-			String attrName = attr.name();
-			if(attrName.contains("class")){
-//				instanceValue[n] = classAt;
-				instance.setValue(n, classAt);
-			}else{
-				if(attribute.containsKey(attrName)){
-					//System.out.println(isNumeric(attribute.get(attrName).toString()));
-					if(!isNumeric(attribute.get(attrName).toString())|| attrName.equals("Activity code") || attrName.equals("Specialism code") ){//
-						//					instanceValue[n] = attIndex.get(attrName);
-
-						instance.setValue(attr, attIndex.get(attrName));
-
-					}else{
-						double tt = (double) attribute.get(attrName);
-						//					instanceValue[n] = tt; //(double) attribute.get(attrName);
-						instance.setValue(n, tt);
-					}
-				}
-
-				try{
-					double tt = (double) attribute.get(attrName);
-					instance.setValue(n, tt);
-					//System.out.println(tt);
-				}catch(Exception e) {
-					instance.setValue(n, 88.88);
-					//System.out.println(attribute.get(attrName));
-				}
-			}
-			n++;
-		}
-		
-		instse.add(instance);
-		//		System.out.println(instse);
-		instanceForTree.put(name, instse);
-
-		return instance;
-	}
-	
-//	@Override
-//	public void updateModel(DeclareModel d) {
-//		for(String param1 : activityLabelsAltPrecedence){
-//			for(String param2 : activityLabelsAltPrecedence){
-//				if(!param1.equals(param2)){
-//					double fulfill = 0;
-//					//double viol = 0;
-//					double act = 0;
-//					for(String caseId : activityLabelsCounterAltPrecedence.keySet()) {
-//						HashMap<String, Integer> counter = activityLabelsCounterAltPrecedence.getItem(caseId);
-//						HashMap<String, HashMap<String, Integer>> fulfillForThisTrace = fulfilledConstraintsPerTraceAlt.getItem(caseId);
-//
-//						if(counter.containsKey(param2)){
-//							double totnumber = counter.get(param2);
-//							act = act + totnumber;
-//							if(fulfillForThisTrace.containsKey(param1)){
-//								if(fulfillForThisTrace.get(param1).containsKey(param2)){	
-//									//double stillpending = fulfillForThisTrace.get(param1).get(param2);
-//									fulfill = fulfill + fulfillForThisTrace.get(param1).get(param2);
-//									//viol = viol + stillpending;
-//								}
-//							}
-//						}
-//
-//					}
-//					d.addAlternatePrecedence(param1, param2, act, fulfill);
-//				}
-//			}
-//		}
-//	}
 
 	@Override
 	public Integer getSize() {

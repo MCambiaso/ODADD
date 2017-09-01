@@ -46,7 +46,7 @@ public class Entry {
 		int ne=0;
 		//Socket s = new Socket(address, port);
 
-		InputStream in = new FileInputStream(new File("/home/matte/Scaricati/logTest2"));//hospitalStream logTest2 CompleteHospital Experiments/40x20x5000
+		InputStream in = new FileInputStream(new File("/home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/Log/logTest2"));///home/matte/Scaricati/logTest2------------hospitalStream logTest2 CompleteHospital Experiments/40x20x5000
 
 //		status.setText("Miner started. Collecting events...");
 //		status.setIcon(UIColors.loadingIcon);
@@ -55,24 +55,23 @@ public class Entry {
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
 		String str = "";
-		
-			while ((str = br.readLine()) != null) {
 
+		while ((str = br.readLine()) != null) {
 //			System.out.println(str);
 
-				XTrace t = (XTrace) converter.fromXML(str);
-				XEvent event = t.get(0);
-				String caseId = Utils.getCaseID(t);
-//				String activity = Utils.getActivityName(event);
-				ne++;
-				int currentBucket = (int)((double)ne / (double)bucketWidth);
-				replayer.addObservation(caseId, currentBucket);
-				replayer.process(event, t, nominal, bucketWidth);
-				System.out.println(ne);
-			}
-			br.close();
-		
-		
+			XTrace t = (XTrace) converter.fromXML(str);
+			XEvent event = t.get(0);
+			String caseId = Utils.getCaseID(t);
+//			String activity = Utils.getActivityName(event);
+			ne++;
+			int currentBucket = (int)((double)ne / (double)bucketWidth);
+			replayer.addObservation(caseId, currentBucket);
+			replayer.process(event, t, nominal, bucketWidth);
+			System.out.println(ne);
+		}
+		br.close();
+
+		replayer.results();
 		//s.close();
 
 

@@ -29,6 +29,13 @@ public interface LCTemplateReplayer {
 	 * @param currentBucket
 	 */
 	public void cleanup(Integer currentBucket);
+	
+	/**
+	 * Write results
+	 * 
+	 * @param currentBucket
+	 */
+	public void results();
 
 	/**
 	 * 

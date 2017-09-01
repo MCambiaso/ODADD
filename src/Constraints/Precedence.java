@@ -37,19 +37,19 @@ public class Precedence implements LCTemplateReplayer {
 	
 	boolean first = true, fulf = true;
 	private Model modello = new Model();
-	private HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
+	private static HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
 	private LossyModel mod = new LossyModel();
 
-	int nr = 0, en=0, cc=5;
+	int nr = 0, en=0, cc=10;
 	
 	private HashSet<String> activityLabelsPrecedence = new HashSet<String>();
 	private LossyCounting<HashMap<String, Integer>> activityLabelsCounterPrecedence = new LossyCounting<HashMap<String, Integer>>();
 	private LossyCounting<HashMap<String, HashMap<String, Integer>>> fulfilledConstraintsPerTrace = new LossyCounting<HashMap<String, HashMap<String, Integer>>>();	
 	
-	File file = new File("/home/matte/Scrivania/Out/OutPrecedence.txt");
+	File file = new File("/home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/Results/OutPrecedence.txt");
 	FileWriter fw = null;
 	BufferedWriter brf;
-	PrintWriter printout;{			
+	static PrintWriter printout;{			
 	try {
 		fw = new FileWriter(file);
 	} catch (IOException e2) {
@@ -376,28 +376,6 @@ public class Precedence implements LCTemplateReplayer {
 		
 		//*********************** Hoeffding tree **************************
 		
-		if(en==199999){ //instanceForTree.get(name).numInstances()>1000
-			for(String prHF : modello.hoeffCollection.keySet()){ 				
-				ComputeKPI ckpi = new ComputeKPI();
-				Measurement[] measurement = modello.hoeffCollection.get(prHF).getModelMeasurements();
-				if(measurement[0].getValue() >= 1){//200 && measurement[3].getValue() > 0
-					try {
-//						printout.println("@@@@@@@@@@@@\n"+prHF+"\n"+modello.hoeffCollection.get(prHF).toString());
-						System.out.println("@@@@@@@@@@@@\n"+prHF+"\n"+modello.hoeffCollection.get(prHF).toString());
-//						double[] out = ckpi.ComputeKPI(modello.hoeffCollection.get(prHF).toString());
-//						printout.println("act: "+out[0]+"\tratio: "+out[1]);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}	
-//			printout.flush();
-//			printout.close();
-//			for(String name : numberViolFul.keySet()){
-//				printout.println("@@@@@@@@@@@@\n"+name+"\t"+numberViolFul.get(name).getFirst()+", "+numberViolFul.get(name).getSecond());
-//			}
-		}
 		//System.out.println(en);
 //		System.out.println("Pr:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time);
 		printout.println(System.currentTimeMillis()-start);
@@ -405,39 +383,17 @@ public class Precedence implements LCTemplateReplayer {
 //		printout.close();
 	}
 	
-	//********** Create and feed the Hoeffding tree **********
-	public void HF(String name, Instance instance, Model modello){
-		if(!modello.hoeffCollection.containsKey(name)){ //instanceForTree.get(name).numInstances()>=5 && 
-			HoeffdingTree hf = new HoeffdingTree();							
-			
-				Instances in = instanceForTree.get(name);
-				InstancesHeader ih = new InstancesHeader(in);
-				in.setClassIndex(0);
-
-				Attribute prova = in.attribute("class");
-
-				hf.prepareForUse();
-				
-				hf.setModelContext(ih);
-				hf.leafpredictionOption.setChosenLabel("MC");
-				hf.gracePeriodOption.setValue(5);
-				hf.splitConfidenceOption.setValue(1.0E-2);
-				
-				hf.trainOnInstance(instance);
-				modello.hoeffCollection.put(name, hf);
-
-		}else if(modello.hoeffCollection.containsKey(name)){ //instanceForTree.get(name).numInstances()>numInstUpdate && 
-			
-//				hoeffCollection.get(name).updateClassifier(instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)); //instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)
-				Instances in = instanceForTree.get(name);
-				
-				in.setClassIndex(0);
-				modello.hoeffCollection.get(name).trainOnInstance(instance);
-				
-//				modello.hoeffCollection.get(name).updateClassifier(instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)); //instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)
-				instanceForTree.get(name).delete(instanceForTree.get(name).numInstances()-1);
-			
-		}
+	@Override
+	public void results(){
+		for(String aEvent : mc.keySet()){ 
+			for(String bEvent : mc.get(aEvent).keySet()){
+				printout.println("@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
+				printout.println(mc.get(aEvent).get(bEvent).getElement1());
+			}
+		}	
+//			System.out.println("AltPrec"+"\t"+fulfill+"\t"+(act-fulfill));
+			printout.flush();
+			printout.close();
 	}
 	
 	public static boolean isNumeric(String str)  
@@ -453,93 +409,6 @@ public class Precedence implements LCTemplateReplayer {
 		}  
 		return true;  
 	}
-	
-	//********** Create new instance for the rule just discovered **********
-	public Instance createInstance(String name, int classAt){
-
-		Instances instse;
-		if(!instanceForTree.containsKey(name)){
-			instse = new Instances(name, myAttr, 1000);
-		}else{
-			instse = instanceForTree.get(name);
-		}
-		//		double[] instanceValue = new double[myAttr.size()];
-		int n=0;
-		InstancesHeader ih = new InstancesHeader(instse);
-		DenseInstance instance = new DenseInstance(66);// 64
-		instance.setDataset(ih);
-		for(Attribute attr : myAttr){	
-			String attrName = attr.name();
-			if(attrName.contains("class")){
-//				instanceValue[n] = classAt;
-				instance.setValue(n, classAt);
-			}else{
-				if(attribute.containsKey(attrName)){
-					//System.out.println(isNumeric(attribute.get(attrName).toString()));
-					if(!isNumeric(attribute.get(attrName).toString())|| attrName.equals("Activity code") || attrName.equals("Specialism code") ){//
-						//					instanceValue[n] = attIndex.get(attrName);
-
-						instance.setValue(attr, attIndex.get(attrName));
-
-					}else{
-						double tt = (double) attribute.get(attrName);
-						//					instanceValue[n] = tt; //(double) attribute.get(attrName);
-						instance.setValue(n, tt);
-					}
-				}
-
-				try{
-					double tt = (double) attribute.get(attrName);
-					instance.setValue(n, tt);
-					//System.out.println(tt);
-				}catch(Exception e) {
-					instance.setValue(n, 88.88);
-					//System.out.println(attribute.get(attrName));
-				}
-			}
-			n++;
-		}
-		
-		instse.add(instance);
-		//System.out.println(instse);
-		instanceForTree.put(name, instse);
-
-		return instance;
-	}
-
-//	@Override
-//	public void updateModel(DeclareModel d) {
-//		for(String param1 : activityLabelsPrecedence) {
-//			for(String param2 : activityLabelsPrecedence) {
-//				if(!param1.equals(param2)){
-//
-//					// let's generate precedences
-//					double fulfill = 0.0;
-//					double act = 0.0;
-//					for(String caseId : activityLabelsCounterPrecedence.keySet()) {
-//						HashMap<String, Integer> counter = activityLabelsCounterPrecedence.getItem(caseId);
-//						HashMap<String, HashMap<String, Integer>> fulfillForThisTrace = fulfilledConstraintsPerTrace.getItem(caseId);
-//						if (fulfillForThisTrace == null) {
-//							fulfillForThisTrace = new HashMap<String, HashMap<String, Integer>>();
-//						}
-//						if(counter.containsKey(param2)) {
-//							double totnumber = counter.get(param2);
-//							act = act + totnumber;
-//							if(fulfillForThisTrace.containsKey(param1)){
-//								if(fulfillForThisTrace.get(param1).containsKey(param2)) {
-//									fulfill = fulfill + fulfillForThisTrace.get(param1).get(param2);
-////									if(!instanceForTree.containsKey(param1+"-"+param2))
-////										System.out.println("ghe");
-//								}
-//							}
-//						}
-//					}
-//					d.addPrecedence(param1, param2, act, fulfill);
-//				//	d.addNotPrecedence(param1, param2, act, act - fulfill);
-//				}
-//			}
-//		}
-//	}
 
 	@Override
 	public Integer getSize() {

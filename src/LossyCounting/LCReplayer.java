@@ -74,6 +74,16 @@ public class LCReplayer {
 	
 	/**
 	 * 
+	 * @param 
+	 */
+	public void results() {
+		for(LCTemplateReplayer t : replayers) {
+			t.results();
+		}
+	}
+	
+	/**
+	 * 
 	 * @return
 	 */
 	public Integer getSize() {

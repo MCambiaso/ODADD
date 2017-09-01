@@ -17,22 +17,18 @@ import org.deckfour.xes.model.XTrace;
 import moa.classifiers.trees.HoeffdingTree;
 import LossyCounting.LossyCounting;
 import LossyCounting.LCTemplateReplayer;
-import Utils.ComputeKPI;
-//import prompt.onlinedeclare.utils.DeclareModel;
+
 import Utils.Pair;
 import Utils.Utils;
 
 import com.yahoo.labs.samoa.instances.*;
 
-import moa.classifiers.trees.HoeffdingTree;
-import moa.core.*;
-
 public class Response implements LCTemplateReplayer {
 	
 	private HashMap<String, ArrayList<HashMap<String, Object>>> snapCollection = new HashMap<String, ArrayList<HashMap<String, Object>>>();
-	private HashMap<String, Instances> instanceForTree = new HashMap<String, Instances>();
+//	private HashMap<String, Instances> instanceForTree = new HashMap<String, Instances>();
 	private HashMap<String, Object> attribute;
-	private HashMap<String, ArrayList<String>> nominal = new HashMap<String, ArrayList<String>>();
+//	private HashMap<String, ArrayList<String>> nominal = new HashMap<String, ArrayList<String>>();
 	ArrayList<Attribute> myAttr = new ArrayList<Attribute>(20);
 	ArrayList<Attribute> myAttrTr ;
 	private HashMap<String, Integer> attIndex = new HashMap<String, Integer>();
@@ -40,9 +36,9 @@ public class Response implements LCTemplateReplayer {
 	boolean first = true, fulf = true;
 	private Model modello = new Model();
 	int nr = 0, en=0;
-	private HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
+	private static HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
 	private LossyModel mod = new LossyModel();
-	int aa=0, bb=0, cc=5;
+	int aa=0, bb=0, cc=10;
 	
 //	private HashMap<String, >
 	
@@ -51,10 +47,10 @@ public class Response implements LCTemplateReplayer {
 	private LossyCounting<HashMap<String, HashMap<String, Integer>>> pendingConstraintsPerTrace = new LossyCounting<HashMap<String, HashMap<String, Integer>>>();
 	private LossyCounting<HashMap<String, HashMap<String, Integer>>> fulfilledConstraintsPerTrace = new LossyCounting<HashMap<String, HashMap<String, Integer>>>();
 	
-	File file = new File("/home/matte/Scrivania/Out/OutResponse.txt");
+	File file = new File("/home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/Results/OutResponse.txt");
 	FileWriter fw = null;
 	BufferedWriter brf;
-	PrintWriter printout;{			
+	static PrintWriter printout;{			
 	try {
 		fw = new FileWriter(file);
 	} catch (IOException e2) {
@@ -91,18 +87,16 @@ public class Response implements LCTemplateReplayer {
 
 	@Override
 	public void process(XEvent eve, XTrace t, HashMap<String, ArrayList<String>> nomin, Integer bucketWidth) {
-//		Model modello = model;
-		int currentBucket , pp=0;
+		int currentBucket = 0;
+		int pp=0;
 		bucketWidth=(int)(1000);
 		long start = System.currentTimeMillis();
-		long start1, start2, start3, start4, start5, stop1, stop2, stop3, stop4, stop5, time=0;
+		long start1, start2, start3, stop1, stop2, stop3, time=0;
 		//en++;
 		// Collection of attribute of new event
 
 		attribute = new HashMap<String, Object>();
 		myAttrTr = new ArrayList<Attribute>(100);
-
-		int aa=0, bb=0, cc=0;
 
 		ArrayList<String> classe = new ArrayList<String>(2);
 		classe.add("FULFILLMENT");
@@ -230,7 +224,6 @@ public class Response implements LCTemplateReplayer {
 		
 		for(Attribute attr : myAttr){
 			if(!attIndex.containsKey(attr.name()) && !attr.name().equals("class")){
-				String attrib = attr.name();
 				attIndex.put(attr.name(), nomin.get(attr.name()).indexOf("0"));
 			}
 		}
@@ -459,49 +452,6 @@ public class Response implements LCTemplateReplayer {
 			}
 		}		
 		
-		if(en==199999){ //instanceForTree.get(name).numInstances()>1000
-			double fulfill = 0.0;
-			double act = 0.0;
-			for(String caseID : activityLabelsCounterResponse.keySet()) {
-				HashMap<String, Integer> Counter = activityLabelsCounterResponse.getItem(caseID);
-				HashMap<String, HashMap<String, Integer>> PendingForThisTrace = pendingConstraintsPerTrace.getItem(caseID);
-				if (PendingForThisTrace == null) {
-					PendingForThisTrace = new HashMap<String, HashMap<String, Integer>>();
-				}
-				if(Counter.containsKey("b-null")){
-					double totnumber = Counter.get("b-null");
-					act = act + totnumber;
-					if(PendingForThisTrace.containsKey("b-null")){
-						if(PendingForThisTrace.get("b-null").containsKey("a-null")){
-							double stillpending = PendingForThisTrace.get("b-null").get("a-null");
-							fulfill = fulfill + (totnumber - stillpending);
-						}
-					}
-				}
-			}
-			
-			for(String prHF : modello.hoeffCollection.keySet()){ 				
-				ComputeKPI ckpi = new ComputeKPI();
-				Measurement[] measurement = modello.hoeffCollection.get(prHF).getModelMeasurements();
-				if(measurement[0].getValue() >= 1){
-//  					printout.println("@@@@@@@@@@@@\n"+prHF+"\n"+modello.hoeffCollection.get(prHF).toString());
-//				if(measurement[0].getValue() >= 20 && measurement[3].getValue() > 0){
-					try {
-//						printout.println("@@@@@@@@@@@@\n"+prHF+"\n"+modello.hoeffCollection.get(prHF).toString());
-						double[] out = ckpi.ComputeKPI(modello.hoeffCollection.get(prHF).toString());
-//						printout.println("act: "+out[0]+"\tratio: "+out[1]);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}	
-			System.out.println("Resp"+"\t"+fulfill+"\t"+(act-fulfill)+"\t"+aa+"\t"+bb+"\t"+cc);
-//			printout.flush();
-//			printout.close();
-//			for(String name : numberViolFul.keySet()){
-//				printout.println("@@@@@@@@@@@@\n"+name+"\t"+numberViolFul.get(name).getFirst()+", "+numberViolFul.get(name).getSecond());
-//			}
-		}
 		//System.out.println(en);
 //		System.out.println("Re:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time);
 		printout.println(System.currentTimeMillis()-start);
@@ -509,39 +459,18 @@ public class Response implements LCTemplateReplayer {
 //		printout.close();
 		
 	}	
-
-	public void HF(String name, Instance instance, Model modello){
-		if(!modello.hoeffCollection.containsKey(name)){ //instanceForTree.get(name).numInstances()>=5 && 
-			HoeffdingTree hf = new HoeffdingTree();							
-			
-				Instances in = instanceForTree.get(name);
-				InstancesHeader ih = new InstancesHeader(in);
-				in.setClassIndex(0);
-
-				Attribute prova = in.attribute("class");
-
-				hf.prepareForUse();
-				
-				hf.setModelContext(ih);
-				hf.leafpredictionOption.setChosenLabel("MC");
-				hf.gracePeriodOption.setValue(1);
-				hf.splitConfidenceOption.setValue(1.0E-0);
-
-				hf.trainOnInstance(instance);
-				modello.hoeffCollection.put(name, hf);
-
-		}else if(modello.hoeffCollection.containsKey(name)){ //instanceForTree.get(name).numInstances()>numInstUpdate && 
-			
-//				hoeffCollection.get(name).updateClassifier(instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)); //instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)
-				Instances in = instanceForTree.get(name);
-				
-				in.setClassIndex(0);
-				modello.hoeffCollection.get(name).trainOnInstance(instance);
-				
-//				modello.hoeffCollection.get(name).updateClassifier(instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)); //instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)
-				instanceForTree.get(name).delete(instanceForTree.get(name).numInstances()-1);
-			
-		}
+	
+	@Override
+	public void results(){
+		for(String aEvent : mc.keySet()){ 
+			for(String bEvent : mc.get(aEvent).keySet()){
+				printout.println("@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
+				printout.println(mc.get(aEvent).get(bEvent).getElement1());
+			}
+		}	
+//			System.out.println("AltPrec"+"\t"+fulfill+"\t"+(act-fulfill));
+			printout.flush();
+			printout.close();
 	}
 	
 	public static boolean isNumeric(String str)  
@@ -557,91 +486,6 @@ public class Response implements LCTemplateReplayer {
 		}  
 		return true;  
 	}
-	
-	public Instance createInstance(String name, int classAt){
-
-		Instances instse;
-		if(!instanceForTree.containsKey(name)){
-			instse = new Instances(name, myAttr, 1000);
-		}else{
-			instse = instanceForTree.get(name);
-		}
-		//		double[] instanceValue = new double[myAttr.size()];
-		int n=0;
-		InstancesHeader ih = new InstancesHeader(instse);
-		DenseInstance instance = new DenseInstance(66);
-		instance.setDataset(ih);
-		for(Attribute attr : myAttr){	
-			String attrName = attr.name();
-			if(attrName.contains("class")){
-//				instanceValue[n] = classAt;
-				instance.setValue(n, classAt);
-			}else{
-				if(attribute.containsKey(attrName)){
-					//System.out.println(isNumeric(attribute.get(attrName).toString()));
-					if(!isNumeric(attribute.get(attrName).toString())|| attrName.equals("Activity code") || attrName.equals("Specialism code") ){//
-						//					instanceValue[n] = attIndex.get(attrName);
-
-						instance.setValue(attr, attIndex.get(attrName));
-
-					}else{
-						double tt = (double) attribute.get(attrName);
-						//					instanceValue[n] = tt; //(double) attribute.get(attrName);
-						instance.setValue(n, tt);
-					}
-				}
-
-				try{
-					double tt = (double) attribute.get(attrName);
-					instance.setValue(n, tt);
-					//System.out.println(tt);
-				}catch(Exception e) {
-					instance.setValue(n, 88.88);
-					//System.out.println(attribute.get(attrName));
-				}
-			}
-			n++;
-		}
-		//System.out.println(n);
-		instse.add(instance);
-		//		System.out.println(instse);
-		instanceForTree.put(name, instse);
-
-		return instance;
-	}
-	
-//	@Override
-//	public void updateModel(DeclareModel d) {
-//		for(String param1 : activityLabelsResponse) {
-//			for(String param2 : activityLabelsResponse) {
-//				if(!param1.equals(param2)){
-//					
-//					// let's generate responses
-//					double fulfill = 0.0;
-//					double act = 0.0;
-//					for(String caseId : activityLabelsCounterResponse.keySet()) {
-//						HashMap<String, Integer> counter = activityLabelsCounterResponse.getItem(caseId);
-//						HashMap<String, HashMap<String, Integer>> pendingForThisTrace = pendingConstraintsPerTrace.getItem(caseId);
-//						if (pendingForThisTrace == null) {
-//							pendingForThisTrace = new HashMap<String, HashMap<String, Integer>>();
-//						}
-//						if(counter.containsKey(param1)){
-//							double totnumber = counter.get(param1);
-//							act = act + totnumber;
-//							if(pendingForThisTrace.containsKey(param1)){
-//								if(pendingForThisTrace.get(param1).containsKey(param2)){
-//									double stillpending = pendingForThisTrace.get(param1).get(param2);
-//									fulfill = fulfill + (totnumber - stillpending);
-//								}
-//							}
-//						}
-//					}
-//					d.addResponse(param1, param2, act, fulfill);
-//			  //  	d.addNotResponse(param1, param2, act, act - fulfill);
-//				}
-//			}
-//		}
-//	}
 
 	@Override
 	public Integer getSize() {
