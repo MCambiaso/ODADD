@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.*;
 
 import org.deckfour.xes.model.XAttribute;
 import org.deckfour.xes.model.XEvent;
@@ -38,6 +39,7 @@ public class Precedence implements LCTemplateReplayer {
 	boolean first = true, fulf = true;
 	private Model modello = new Model();
 	private static HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
+	private static HashMap<String, LinkedList<String>> eventList = new HashMap<String, LinkedList<String>>();
 	private LossyModel mod = new LossyModel();
 
 	int nr = 0, en=0, cc=10;
@@ -92,8 +94,9 @@ public class Precedence implements LCTemplateReplayer {
 		
 		//********** Set Parameter for LossyCounting **********
 		int currentBucket , pp=0;
-		bucketWidth=(int)(1000);
+		//bucketWidth=(int)(1000);
 		//en++;
+		en = 0;
 		
 		//********** Build the snapshot for events **********
 		attribute = new HashMap<String, Object>();
@@ -234,7 +237,15 @@ public class Precedence implements LCTemplateReplayer {
 		//********** Mining fulfillment/violation **********
 		String caseId = Utils.getCaseID(tr);
 		String event = Utils.getActivityName(eve);
+		
+		LinkedList<String> list = new LinkedList<String>();
+		if(eventList.containsKey(caseId))
+			list = eventList.get(caseId);
+		else
+			eventList.put(caseId, list);
+		
 		activityLabelsPrecedence.add(event);
+		
 		HashMap<String, Integer> counter = new HashMap<String, Integer>();
 		if (!activityLabelsCounterPrecedence.containsKey(caseId)) {
 			activityLabelsCounterPrecedence.putItem(caseId, counter);
@@ -249,15 +260,15 @@ public class Precedence implements LCTemplateReplayer {
 			fulfilledForThisTrace = fulfilledConstraintsPerTrace.getItem(caseId);
 		}		
 		
-		if (activityLabelsPrecedence.size() > 1) {
-			for (String existingEvent : activityLabelsPrecedence) {
-				if(pp==cc)
-				{
-					pp=0;
-					break;
-				}else{
-					pp++;
-				}
+		if (list.size()>1){//activityLabelsPrecedence.size() > 1) {
+			for (String existingEvent : list){//activityLabelsPrecedence) {
+//				if(pp==cc)
+//				{
+//					pp=0;
+//					break;
+//				}else{
+//					pp++;
+//				}
 				if (!existingEvent.equals(event)) {
 					HashMap<String, Integer> secondElement = new HashMap<String, Integer>();
 					int fulfillments = 0;
@@ -282,9 +293,9 @@ public class Precedence implements LCTemplateReplayer {
 						fulf = true;
 						nr++;
 						currentBucket = nr/bucketWidth;	
-						if(nr>1 && nr<50){
+						if(nr>1){
 							start1 = System.currentTimeMillis();
-							mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, mc);
+							mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, bucketWidth, mc);
 							stop1 = System.currentTimeMillis();
 							time = time+stop1-start1;
 							en++;
@@ -316,16 +327,16 @@ public class Precedence implements LCTemplateReplayer {
 				}				
 			}
 			
-			if(modello.containsKey(event)){//!!!!!!!!!!!!!!!!BACO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				ArrayList<String> actEve = new ArrayList<String>(modello.get(event).keySet());
+			if(mc.containsKey(event)){
+				ArrayList<String> actEve = new ArrayList<String>(mc.get(event).keySet());
 				for(String secEl : actEve){	
-					if(pp==cc)
-					{
-						pp=0;
-						break;
-					}else{
-						pp++;
-					}
+//					if(pp==cc)
+//					{
+//						pp=0;
+//						break;
+//					}else{
+//						pp++;
+//					}
 						if(!counter.containsKey(secEl)){	
 //							createInstance(secEl+"%"+event, 1);
 //							if(numberViolFul.containsKey(secEl+"-"+eveif(!myAttrTr.contains(attr.getKey())){
@@ -342,9 +353,9 @@ public class Precedence implements LCTemplateReplayer {
 							nr++;
 							currentBucket = nr/bucketWidth;
 							//modello.addObservation(event, secEl, currentBucket, bucketWidth, fulf);
-							if(nr>1 && nr<50){
+							if(nr>1){
 								start2 = System.currentTimeMillis();
-								mc = mod.addObservation(secEl, event, myAttr, attribute, attIndex, 1, mc); 
+								mc = mod.addObservation(secEl, event, myAttr, attribute, attIndex, 1, bucketWidth, mc); 
 								stop2 = System.currentTimeMillis();
 								time = time+stop2-start2;
 								en++;
@@ -358,7 +369,9 @@ public class Precedence implements LCTemplateReplayer {
 						}					
 				}
 			}
-			fulfilledConstraintsPerTrace.putItem(caseId, fulfilledForThisTrace);			
+			fulfilledConstraintsPerTrace.putItem(caseId, fulfilledForThisTrace);
+			
+//			if(eve.getAttributes()=="end")
 		}
 		
 		// update the counter for the current trace and the current event
@@ -374,12 +387,33 @@ public class Precedence implements LCTemplateReplayer {
 		}
 		activityLabelsCounterPrecedence.putItem(caseId, counter);
 		
+		XAttribute sttt =  eve.getAttributes().get("stream:lifecycle:trace-transition");
+//		System.out.println(eve.getAttributes().get("stream:lifecycle:trace-transition").toString());
+		if(sttt!=null && eve.getAttributes().get("stream:lifecycle:trace-transition").toString().equals("complete")){
+			activityLabelsCounterPrecedence.remove(caseId);
+			fulfilledConstraintsPerTrace.remove(caseId);
+		}
+		
+		if(list.size()==10)
+			list.removeFirst();
+			
+		list.add(event);
+		eventList.remove(caseId);
+		eventList.put(caseId, list);
+		
+		//System.out.println(list.size());
+		
+		
+		//System.out.println("Ghe sun");
+		
+		//if(eve.getAttributes().values().contains("trace-transition").toString()=="complete")
+		
 		//*********************** Hoeffding tree **************************
 		
 		//System.out.println(en);
-//		System.out.println("Pr:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time);
-		printout.println(System.currentTimeMillis()-start);
-		printout.flush();
+		//System.out.println("Pr:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
+//		printout.println(System.currentTimeMillis()-start);
+//		printout.flush();
 //		printout.close();
 	}
 	
@@ -387,7 +421,9 @@ public class Precedence implements LCTemplateReplayer {
 	public void results(){
 		for(String aEvent : mc.keySet()){ 
 			for(String bEvent : mc.get(aEvent).keySet()){
-				printout.println("@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
+				printout.println("@@@@@@@@@@@@@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
+//				System.out.println(mc.get(aEvent).get(bEvent).getElement0());
+//				System.out.println(mc.get(aEvent).get(bEvent).getElement1());
 				printout.println(mc.get(aEvent).get(bEvent).getElement1());
 			}
 		}	

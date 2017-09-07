@@ -89,10 +89,11 @@ public class Response implements LCTemplateReplayer {
 	public void process(XEvent eve, XTrace t, HashMap<String, ArrayList<String>> nomin, Integer bucketWidth) {
 		int currentBucket = 0;
 		int pp=0;
-		bucketWidth=(int)(1000);
+		//bucketWidth=(int)(1000);
 		long start = System.currentTimeMillis();
 		long start1, start2, start3, stop1, stop2, stop3, time=0;
 		//en++;
+		en = 0;
 		// Collection of attribute of new event
 
 		attribute = new HashMap<String, Object>();
@@ -264,13 +265,13 @@ public class Response implements LCTemplateReplayer {
 		if (!counter.containsKey(event)) {
 			if (activityLabelsResponse.size() > 1) {
 				for (String existingEvent : activityLabelsResponse) {
-					if(pp==49)
-					{
-						pp=0;
-						break;
-					}else{
-						pp++;
-					}
+//					if(pp==49)
+//					{
+//						pp=0;
+//						break;
+//					}else{
+//						pp++;
+//					}
 					if (!existingEvent.equals(event)) {
 						HashMap<String, Integer> secondElement = new HashMap<String, Integer>();
 						if (pendingForThisTrace.containsKey(existingEvent)) {
@@ -296,7 +297,7 @@ public class Response implements LCTemplateReplayer {
 							currentBucket = nr/bucketWidth;		
 							if(nr>1 && nr<50){
 								start1 = System.currentTimeMillis();
-								mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, mc); 
+								mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, bucketWidth, mc); 
 								en++;
 								stop1 = System.currentTimeMillis();
 								time = time+stop1-start1;
@@ -313,13 +314,13 @@ public class Response implements LCTemplateReplayer {
 				}
 				
 				for (String existingEvent : activityLabelsResponse) {
-					if(pp==49)
-					{
-						pp=0;
-						break;
-					}else{
-						pp++;
-					}
+//					if(pp==49)
+//					{
+//						pp=0;
+//						break;
+//					}else{
+//						pp++;
+//					}
 					if (!existingEvent.equals(event)) {
 						HashMap<String, Integer> secondElement = new HashMap<String, Integer>();
 						if (pendingForThisTrace.containsKey(event)) {
@@ -335,13 +336,13 @@ public class Response implements LCTemplateReplayer {
 		} else {
 
 			for (String firstElement : pendingForThisTrace.keySet()) {
-				if(pp==49)
-				{
-					pp=0;
-					break;
-				}else{
-					pp++;
-				}
+//				if(pp==49)
+//				{
+//					pp=0;
+//					break;
+//				}else{
+//					pp++;
+//				}
 				if (!firstElement.equals(event)) {
 					HashMap<String, Integer> secondElement = pendingForThisTrace.get(firstElement);
 					int numPend =0;
@@ -364,7 +365,7 @@ public class Response implements LCTemplateReplayer {
 						currentBucket = nr/bucketWidth;		
 						if(nr>1 && nr<50){
 							start2 = System.currentTimeMillis();
-							mc = mod.addObservation(firstElement, event, myAttr, attribute, attIndex, 0, mc); 
+							mc = mod.addObservation(firstElement, event, myAttr, attribute, attIndex, 0, bucketWidth, mc); 
 							stop2 = System.currentTimeMillis();
 							time = time+stop2-start2;
 							en++;
@@ -381,13 +382,13 @@ public class Response implements LCTemplateReplayer {
 			}
 			HashMap<String, Integer> secondElement = pendingForThisTrace.get(event);
 			for (String second : secondElement.keySet()) {
-				if(pp==49)
-				{
-					pp=0;
-					break;
-				}else{
-					pp++;
-				}
+//				if(pp==49)
+//				{
+//					pp=0;
+//					break;
+//				}else{
+//					pp++;
+//				}
 				if (!second.equals(event)) {
 					Integer pendingNo = secondElement.get(second);
 					pendingNo++;
@@ -418,13 +419,13 @@ public class Response implements LCTemplateReplayer {
 		if(Utils.isTraceComplete(eve)){
 			for (String firstElement : pendingForThisTrace.keySet()) {
 				for (String secondElement : pendingForThisTrace.get(firstElement).keySet()) {
-					if(pp==49)
-					{
-						pp=0;
-						break;
-					}else{
-						pp++;
-					}
+//					if(pp==49)
+//					{
+//						pp=0;
+//						break;
+//					}else{
+//						pp++;
+//					}
 					if(!pendingForThisTrace.get(firstElement).get(secondElement).equals(0)){
 						int numPend = pendingForThisTrace.get(firstElement).get(secondElement);
 //						for(int i = 0; i<snapCollection.get(firstElement).size(); i++){
@@ -438,7 +439,7 @@ public class Response implements LCTemplateReplayer {
 							currentBucket = nr/bucketWidth;
 							if(nr>1 && nr<50){
 								start3 = System.currentTimeMillis();
-								mc = mod.addObservation(firstElement, secondElement, myAttr, attribute, attIndex, 1, mc); 
+								mc = mod.addObservation(firstElement, secondElement, myAttr, attribute, attIndex, 1, bucketWidth, mc); 
 								stop3 = System.currentTimeMillis();
 								time = time+stop3-start3;
 								en++;				
@@ -453,9 +454,9 @@ public class Response implements LCTemplateReplayer {
 		}		
 		
 		//System.out.println(en);
-//		System.out.println("Re:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time);
-		printout.println(System.currentTimeMillis()-start);
-		printout.flush();
+		System.out.println("Re:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time);
+//		printout.println(System.currentTimeMillis()-start);
+//		printout.flush();
 //		printout.close();
 		
 	}	
@@ -464,7 +465,9 @@ public class Response implements LCTemplateReplayer {
 	public void results(){
 		for(String aEvent : mc.keySet()){ 
 			for(String bEvent : mc.get(aEvent).keySet()){
-				printout.println("@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
+				printout.println("@@@@@@@@@@@@@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
+//				System.out.println(mc.get(aEvent).get(bEvent).getElement0());
+//				System.out.println(mc.get(aEvent).get(bEvent).getElement1());
 				printout.println(mc.get(aEvent).get(bEvent).getElement1());
 			}
 		}	

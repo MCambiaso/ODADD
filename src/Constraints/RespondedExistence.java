@@ -93,10 +93,11 @@ public class RespondedExistence implements LCTemplateReplayer {
 	public void process(XEvent eve, XTrace tr, HashMap<String, ArrayList<String>> nomin, Integer bucketWidth) {
 //		Model modello = model;
 		int currentBucket , pp=0;
-		bucketWidth=(int)(1000);
+		//bucketWidth=(int)(1000);
 		long start = System.currentTimeMillis();
 		long start1, start2, start3, start4, start5, stop1, stop2, stop3, stop4, stop5, time=0;
 		//en++;
+		en = 0;
 		// Collection of attribute of new event
 
 		attribute = new HashMap<String, Object>();
@@ -261,13 +262,13 @@ public class RespondedExistence implements LCTemplateReplayer {
 		if (!counter.containsKey(event)) {
 			if (activityLabelsRespondedExistence.size()>1) {
 				for (String existingEvent : activityLabelsRespondedExistence) {
-					if(pp==cc)
-					{
-						pp=0;
-						break;
-					}else{
-						pp++;
-					}
+//					if(pp==cc)
+//					{
+//						pp=0;
+//						break;
+//					}else{
+//						pp++;
+//					}
 					if (!existingEvent.equals(event)){
 						HashMap<String, Integer> secondElement = new HashMap<String, Integer>();
 						if (pendingForThisTrace.containsKey(existingEvent)) {
@@ -289,7 +290,7 @@ public class RespondedExistence implements LCTemplateReplayer {
 							//HF(existingEvent+"%"+event, createInstance(existingEvent+"%"+event, 0), modello);			
 							if(nr>1 && nr<50){
 								start1 = System.currentTimeMillis();
-								mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, mc); 
+								mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, bucketWidth, mc); 
 								stop1 = System.currentTimeMillis();
 								time = time+stop1-start1;
 								en++;
@@ -308,13 +309,13 @@ public class RespondedExistence implements LCTemplateReplayer {
 
 				}
 				for (String existingEvent : activityLabelsRespondedExistence) {
-					if(pp==cc)
-					{
-						pp=0;
-						break;
-					}else{
-						pp++;
-					}
+//					if(pp==cc)
+//					{
+//						pp=0;
+//						break;
+//					}else{
+//						pp++;
+//					}
 					if (!existingEvent.equals(event)) {
 
 						HashMap<String, Integer> secondElement = new  HashMap<String, Integer>();
@@ -343,7 +344,7 @@ public class RespondedExistence implements LCTemplateReplayer {
 								currentBucket = nr/bucketWidth;
 								if(nr>1 && nr<50){
 									start2 = System.currentTimeMillis();
-									mc = mod.addObservation(event,existingEvent, myAttr, attribute, attIndex, 0, mc);
+									mc = mod.addObservation(event,existingEvent, myAttr, attribute, attIndex, 0, bucketWidth, mc);
 									stop2 = System.currentTimeMillis();
 									time = time+stop2-start2;
 									en++;
@@ -364,13 +365,13 @@ public class RespondedExistence implements LCTemplateReplayer {
 			}
 		} else {
 			for (String firstElement : pendingForThisTrace.keySet()) {
-				if(pp==cc)
-				{
-					pp=0;
-					break;
-				}else{
-					pp++;
-				}
+//				if(pp==cc)
+//				{
+//					pp=0;
+//					break;
+//				}else{
+//					pp++;
+//				}
 				if (!firstElement.equals(event)) {
 					HashMap<String, Integer> secondElement = pendingForThisTrace.get(firstElement);
 					int numPend =0;
@@ -392,7 +393,7 @@ public class RespondedExistence implements LCTemplateReplayer {
 						currentBucket = nr/bucketWidth;	
 						if(nr>1 && nr<50){
 							start3 = System.currentTimeMillis();
-							mc = mod.addObservation(firstElement, event, myAttr, attribute, attIndex, 0, mc);	
+							mc = mod.addObservation(firstElement, event, myAttr, attribute, attIndex, 0, bucketWidth, mc);	
 							stop3 = System.currentTimeMillis();
 							time = time+stop3-start3;
 							en++;
@@ -411,13 +412,13 @@ public class RespondedExistence implements LCTemplateReplayer {
 
 			HashMap<String, Integer> secondElement = pendingForThisTrace.get(event);
 			for (String second : secondElement.keySet()) {
-				if(pp==cc)
-				{
-					pp=0;
-					break;
-				}else{
-					pp++;
-				}
+//				if(pp==cc)
+//				{
+//					pp=0;
+//					break;
+//				}else{
+//					pp++;
+//				}
 				if (!second.equals(event)) {
 					if (!counter.containsKey(second)) {
 						Integer pendingNo = secondElement.get(second);
@@ -443,7 +444,7 @@ public class RespondedExistence implements LCTemplateReplayer {
 							currentBucket = nr/bucketWidth;	
 							if(nr>1 && nr<50){
 								start4 = System.currentTimeMillis();
-								mc = mod.addObservation(event, second, myAttr, attribute, attIndex, 0, mc);
+								mc = mod.addObservation(event, second, myAttr, attribute, attIndex, 0, bucketWidth, mc);
 								stop4 = System.currentTimeMillis();
 								time = time+stop4-start4;
 								en++;
@@ -479,13 +480,13 @@ public class RespondedExistence implements LCTemplateReplayer {
 		if(Utils.isTraceComplete(eve)){
 			for (String firstElement : pendingForThisTrace.keySet()) {
 				for (String secondElement : pendingForThisTrace.get(firstElement).keySet()) {
-					if(pp==cc)
-					{
-						pp=0;
-						break;
-					}else{
-						pp++;
-					}
+//					if(pp==cc)
+//					{
+//						pp=0;
+//						break;
+//					}else{
+//						pp++;
+//					}
 //					if(!pendingForThisTrace.get(firstElement).get(secondElement).equals(0)){
 						int numPend = pendingForThisTrace.get(firstElement).size();
 //						for(int i = 0; i<=numPend; i++){
@@ -499,7 +500,7 @@ public class RespondedExistence implements LCTemplateReplayer {
 							currentBucket = nr/bucketWidth;
 							if(nr>1 && nr<50){
 								start5 = System.currentTimeMillis();
-								mc = mod.addObservation(firstElement, secondElement, myAttr, attribute, attIndex, 1, mc);
+								mc = mod.addObservation(firstElement, secondElement, myAttr, attribute, attIndex, 1, bucketWidth, mc);
 								stop5 = System.currentTimeMillis();
 								time = time+stop5-start5;
 								en++;
@@ -515,9 +516,9 @@ public class RespondedExistence implements LCTemplateReplayer {
 		}
 		
 		//System.out.println(en);
-//		System.out.println("ReEx:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time);
-		printout.println(System.currentTimeMillis()-start);
-		printout.flush();
+		//System.out.println("ReEx:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
+//		printout.println(System.currentTimeMillis()-start);
+//		printout.flush();
 //		printout.close();
 	}
 	
@@ -525,7 +526,9 @@ public class RespondedExistence implements LCTemplateReplayer {
 	public void results(){
 		for(String aEvent : mc.keySet()){ 
 			for(String bEvent : mc.get(aEvent).keySet()){
-				printout.println("@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
+				printout.println("@@@@@@@@@@@@@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
+//				System.out.println(mc.get(aEvent).get(bEvent).getElement0());
+//				System.out.println(mc.get(aEvent).get(bEvent).getElement1());
 				printout.println(mc.get(aEvent).get(bEvent).getElement1());
 			}
 		}	

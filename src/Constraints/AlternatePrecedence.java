@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import org.deckfour.xes.model.XAttribute;
 import org.deckfour.xes.model.XEvent;
@@ -43,6 +44,7 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 	boolean first = true, fulf = true;
 	private Model modello = new Model();
 	private static HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
+	private static HashMap<String, LinkedList<String>> eventList = new HashMap<String, LinkedList<String>>();
 	private LossyModel mod = new LossyModel();
 	int nr = 0, en=0, cc=10;
 
@@ -102,8 +104,8 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 		int currentBucket , pp=0;
 		long start = System.currentTimeMillis();
 		long start1, start2, start3, start4, start5, stop1, stop2, stop3, stop4, stop5, time=0;
-		bucketWidth=(int)(1000);
-		//en++;
+		//bucketWidth=(int)(1000);
+		en=0;
 		// Collection of attribute of new event
 
 		attribute = new HashMap<String, Object>();
@@ -243,6 +245,14 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 		
 		String caseId = Utils.getCaseID(tr);
 		String event = Utils.getActivityName(eve);
+		
+		
+		LinkedList<String> list = new LinkedList<String>();
+		if(eventList.containsKey(caseId))
+			list = eventList.get(caseId);
+		else
+			eventList.put(caseId, list);
+		
 		activityLabelsAltPrecedence.add(event);
 		HashMap<String, Integer> counter = new HashMap<String, Integer>();
 		if(!activityLabelsCounterAltPrecedence.containsKey(caseId)){
@@ -268,15 +278,8 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 		}else{
 			isDuplicatedForThisTrace = isDuplicatedActivationPerTrace.getItem(caseId);
 		}
-		if(activityLabelsAltPrecedence.size()>1){
-			for(String existingEvent : activityLabelsAltPrecedence){
-				if(pp==cc)
-				{
-					pp=0;
-					break;
-				}else{
-					pp++;
-				}
+		if(list.size()>1){//activityLabelsAltPrecedence.size()>1){
+			for(String existingEvent : list){//activityLabelsAltPrecedence){
 				if(!existingEvent.equals(event)){
 					boolean violated = false;
 					if(isDuplicatedForThisTrace.containsKey(event)){
@@ -326,7 +329,7 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 								//modello.addObservation(existingEvent, event, currentBucket, bucketWidth, fulf);
 								if(nr>1 && nr<50){
 									start1 = System.currentTimeMillis();
-									mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, mc);
+									mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, bucketWidth, mc);
 									stop1 = System.currentTimeMillis();
 									time = time+stop1-start1;
 									en++;
@@ -341,7 +344,7 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 								currentBucket = nr/bucketWidth;
 								if(nr>1 && nr<50){
 									start2 = System.currentTimeMillis();
-									mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 1, mc);
+									mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 1, bucketWidth, mc);
 									stop2 = System.currentTimeMillis();
 									time = time+stop2-start2;
 									en++;
@@ -357,7 +360,7 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 							currentBucket = nr/bucketWidth;
 							if(nr>1 && nr<50){
 								start3 = System.currentTimeMillis();
-								mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 1, mc);
+								mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 1, bucketWidth, mc);
 								stop3 = System.currentTimeMillis();
 								time = time+stop3-start3;
 								en++;
@@ -373,7 +376,7 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 						currentBucket = nr/bucketWidth;
 						if(nr>1 && nr<50){
 							start4 = System.currentTimeMillis();
-							mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 1, mc);
+							mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 1, bucketWidth, mc);
 							stop4 = System.currentTimeMillis();
 							time = time+stop4-start4;
 							en++;
@@ -396,9 +399,23 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 		}
 		activityLabelsCounterAltPrecedence.putItem(caseId, counter);
 		
+		XAttribute sttt =  eve.getAttributes().get("stream:lifecycle:trace-transition");
+//		System.out.println(eve.getAttributes().get("stream:lifecycle:trace-transition").toString());
+		if(sttt!=null && eve.getAttributes().get("stream:lifecycle:trace-transition").toString().equals("complete")){
+			activityLabelsCounterAltPrecedence.remove(caseId);
+			fulfilledConstraintsPerTraceAlt.remove(caseId);
+			eventList.remove(caseId);
+		}
+		
+		if(list.size()==10)
+			list.removeFirst();
+			
+		list.add(event);
+		eventList.remove(caseId);
+		eventList.put(caseId, list);
 		
 		//System.out.println(en);
-//		System.out.println("AltPr:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time);
+		//System.out.println("AltPr:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
 //		printout.println(System.currentTimeMillis()-start);
 //		printout.flush();
 //		printout.close();

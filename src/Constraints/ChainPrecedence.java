@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import org.deckfour.xes.model.XAttribute;
 import org.deckfour.xes.model.XEvent;
@@ -39,8 +40,9 @@ public class ChainPrecedence implements LCTemplateReplayer {
 	private HashMap<String, Integer> attIndex = new HashMap<String, Integer>();
 	
 	boolean first = true, fulf = true;
-	private Model modello = new Model();
+//	private Model modello = new Model();
 	private static HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
+	private static HashMap<String, LinkedList<String>> eventList = new HashMap<String, LinkedList<String>>();
 	private LossyModel mod = new LossyModel();
 	int nr = 0, en=0, cc=10;
 	
@@ -94,10 +96,11 @@ public class ChainPrecedence implements LCTemplateReplayer {
 	public void process(XEvent eve, XTrace tr, HashMap<String, ArrayList<String>> nomin, Integer bucketWidth) {
 //		Model modello = model;
 		int currentBucket , pp=0;
-		bucketWidth=(int)(1000);
+		//bucketWidth=(int)(1000);
 		long start = System.currentTimeMillis();
 		long start1, start2, start3, start4, start5, stop1, stop2, stop3, stop4, stop5, time=0;
-		en++;
+//		en++;
+		en = 0;
 		// Collection of attribute of new event
 
 		attribute = new HashMap<String, Object>();
@@ -237,6 +240,13 @@ public class ChainPrecedence implements LCTemplateReplayer {
 		
 		String caseId = Utils.getCaseID(tr);
 		String event = Utils.getActivityName(eve);
+		
+		LinkedList<String> list = new LinkedList<String>();
+		if(eventList.containsKey(caseId))
+			list = eventList.get(caseId);
+		else
+			eventList.put(caseId, list);
+		
 		activityLabelsChPrecedence.add(event);
 		HashMap<String, Integer> counter = new HashMap<String, Integer>();
 		if(!activityLabelsCounterChPrecedence.containsKey(caseId)){
@@ -277,24 +287,24 @@ public class ChainPrecedence implements LCTemplateReplayer {
 			//modello.addObservation(, event,currentBucket, bucketWidth, fulf);
 			if(nr>1){
 				start1 = System.currentTimeMillis();
-				mc = mod.addObservation(previousChPrecedence, event, myAttr, attribute, attIndex, 1, mc);
+				mc = mod.addObservation(previousChPrecedence, event, myAttr, attribute, attIndex, 1, bucketWidth, mc);
 				stop1 = System.currentTimeMillis();
 				time = time+stop1-start1;
-				
+				en++;
 				nr=1;
 			}
 			secondElementFul.put(event, nofull+1);
 			fulfilledForThisTrace.put(previousChPrecedence,secondElementFul);
 			fulfilledConstraintsPerTraceChPrecedence.putItem(caseId, fulfilledForThisTrace);
 			
-			for(String first : activityLabelsChPrecedence){
-				if(pp==cc)
-				{
-					pp=0;
-					break;
-				}else{
-					pp++;
-				}
+			for(String first : list){//activityLabelsChPrecedence){
+//				if(pp==cc)
+//				{
+//					pp=0;
+//					break;
+//				}else{
+//					pp++;
+//				}
 				
 				if(!first.equals(event) && !first.equals(previousChPrecedence)){
 					//violatedConstraintsPerTraceCh
@@ -314,10 +324,10 @@ public class ChainPrecedence implements LCTemplateReplayer {
 					//modello.addObservation(, event, currentBucket, bucketWidth, fulf);
 					if(nr>1){
 						start2 = System.currentTimeMillis();
-						mc = mod.addObservation(first, event, myAttr, attribute, attIndex, 1, mc);
+						mc = mod.addObservation(first, event, myAttr, attribute, attIndex, 1, bucketWidth, mc);
 						stop2 = System.currentTimeMillis();
 						time = time+stop2-start2;
-						
+						en++;
 						nr=1;
 					}
 					second.put(event, noviol+1);
@@ -340,13 +350,29 @@ public class ChainPrecedence implements LCTemplateReplayer {
 		}
 		activityLabelsCounterChPrecedence.putItem(caseId, counter);
 		//***********************
-		lastActivity.putItem(caseId, event);		
+		lastActivity.putItem(caseId, event);	
+		
+		XAttribute sttt =  eve.getAttributes().get("stream:lifecycle:trace-transition");
+//		System.out.println(eve.getAttributes().get("stream:lifecycle:trace-transition").toString());
+		if(sttt!=null && eve.getAttributes().get("stream:lifecycle:trace-transition").toString().equals("complete")){
+			violatedConstraintsPerTraceChPrecedence.remove(caseId);
+			fulfilledConstraintsPerTraceChPrecedence.remove(caseId);
+			activityLabelsCounterChPrecedence.remove(caseId);
+			eventList.remove(caseId);
+		}
+		
+		if(list.size()==10)
+			list.removeFirst();
+			
+		list.add(event);
+		eventList.remove(caseId);
+		eventList.put(caseId, list);
 		
 		//System.out.println(en);
 		long stop = System.currentTimeMillis()-start;
-//		System.out.println("ChPr:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time);
-		printout.println(System.currentTimeMillis()-start);
-		printout.flush();
+		//System.out.println("ChPr:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
+//		printout.println(System.currentTimeMillis()-start);
+//		printout.flush();
 //		printout.close();
 	}
 
@@ -354,7 +380,9 @@ public class ChainPrecedence implements LCTemplateReplayer {
 	public void results(){
 		for(String aEvent : mc.keySet()){ 
 			for(String bEvent : mc.get(aEvent).keySet()){
-				printout.println("@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
+				printout.println("@@@@@@@@@@@@@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
+//				System.out.println(mc.get(aEvent).get(bEvent).getElement0());
+//				System.out.println(mc.get(aEvent).get(bEvent).getElement1());
 				printout.println(mc.get(aEvent).get(bEvent).getElement1());
 			}
 		}	

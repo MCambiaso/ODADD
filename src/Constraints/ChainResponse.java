@@ -94,8 +94,9 @@ public class ChainResponse implements LCTemplateReplayer {
 		int currentBucket , pp=0;
 		long start = System.currentTimeMillis();
 		long start1, start2, start3, start4, start5, stop1, stop2, stop3, stop4, stop5, time=0;
-		bucketWidth=(int)(1000);
+		//bucketWidth=(int)(1000);
 		//en++;
+		en = 0;
 		// Collection of attribute of new event
 
 		attribute = new HashMap<String, Object>();
@@ -275,7 +276,7 @@ public class ChainResponse implements LCTemplateReplayer {
 			currentBucket = nr/bucketWidth;	
 			if(nr>1 && nr<50){
 				start1 = System.currentTimeMillis();
-				mc = mod.addObservation(previous, event, myAttr, attribute, attIndex, 0, mc); 
+				mc = mod.addObservation(previous, event, myAttr, attribute, attIndex, 0, bucketWidth, mc); 
 				stop1 = System.currentTimeMillis();
 				time = time+stop1-start1;
 				en++;
@@ -287,14 +288,14 @@ public class ChainResponse implements LCTemplateReplayer {
 			fulfilledForThisTrace.put(previous,secondElementFul);
 			fulfilledConstraintsPerTraceCh.putItem(caseId, fulfilledForThisTrace);
 			//qualcosa non va nelle regole da trovare le violazioni sono tra event e second?
-			for(String second : activityLabelsChResponse){
-				if(pp==cc)
-				{
-					pp=0;
-					break;
-				}else{
-					pp++;
-				}
+			for(String second : counter.keySet()){//activityLabelsChResponse){
+//				if(pp==cc)
+//				{
+//					pp=0;
+//					break;
+//				}else{
+//					pp++;
+//				}
 				if(!second.equals(event) && !second.equals(previous)){
 					int noviol = 0;
 					HashMap<String, Integer> secondEl = new  HashMap<String, Integer>();
@@ -312,7 +313,7 @@ public class ChainResponse implements LCTemplateReplayer {
 					//modello.addObservation( , event, currentBucket, bucketWidth, fulf);
 					if(nr>1 && nr<50){
 						start2 = System.currentTimeMillis();
-						mc = mod.addObservation(second, event, myAttr, attribute, attIndex, 1, mc);
+						mc = mod.addObservation(second, event, myAttr, attribute, attIndex, 1, bucketWidth, mc);
 						stop2 = System.currentTimeMillis();
 						time = time+stop2-start2;
 						en++;
@@ -341,9 +342,9 @@ public class ChainResponse implements LCTemplateReplayer {
 		//***********************
 		
 		//System.out.println(en);
-//		System.out.println("ChRe:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time);
-		printout.println(System.currentTimeMillis()-start);
-		printout.flush();
+		System.out.println("ChRe:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
+//		printout.println(System.currentTimeMillis()-start);
+//		printout.flush();
 //		printout.close();
 	}
 	
@@ -351,7 +352,9 @@ public class ChainResponse implements LCTemplateReplayer {
 	public void results(){
 		for(String aEvent : mc.keySet()){ 
 			for(String bEvent : mc.get(aEvent).keySet()){
-				printout.println("@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
+				printout.println("@@@@@@@@@@@@@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
+//				System.out.println(mc.get(aEvent).get(bEvent).getElement0());
+//				System.out.println(mc.get(aEvent).get(bEvent).getElement1());
 				printout.println(mc.get(aEvent).get(bEvent).getElement1());
 			}
 		}	

@@ -31,26 +31,31 @@ public class LossyModel {
 	int bucket = 50;
 	
 	
-	public HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> addObservation(String eventA, String eventB, ArrayList<Attribute> Attr, HashMap<String, Object> attr, HashMap<String, Integer> attInd, int classif, HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc){
+	public HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> addObservation(String eventA, String eventB, ArrayList<Attribute> Attr, HashMap<String, Object> attr, HashMap<String, Integer> attInd, int classif, int bucketWidth, HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc){
 		long start = System.currentTimeMillis();
 		mm = mc;
 		myAttr = Attr;
 		attribute = attr;
 		attIndex = attInd;
+		bucket = bucketWidth;
+		
+		Instance ins = createInstance(eventA+"%"+eventB, classif);
 			
 		if(mm.containsKey(eventA)){
-
-			if(!mm.get(eventA).containsKey(eventB))
-				mm.get(eventA).put(eventB, new Pair(1,  HF(eventA, eventB, createInstance(eventA+"%"+eventB, classif))));
-			else{
-				 Pair<Integer, HoeffdingTree> pair = new Pair(mm.get(eventA).get(eventB).getElement0()+1, HF(eventA, eventB, createInstance(eventA+"%"+eventB, classif)));
-				 mm.get(eventA).remove(eventB);
-				 mm.get(eventA).put(eventB, pair);
+			if(mm.get(eventA).containsKey(eventB)){
+				HoeffdingTree hhf = new HoeffdingTree();
+				mm.get(eventA).get(eventB).getElement1().trainOnInstance(ins);
+				//System.out.println("Frequenza:\t"+mm.get(eventA).get(eventB).getElement0()+"\t\tNumero di regole associate ad "+eventA+":\t"+mm.get(eventA).size());
+				Pair<Integer, HoeffdingTree> pair = new Pair(mm.get(eventA).get(eventB).getElement0()+1, mm.get(eventA).get(eventB).getElement1());
+				mm.get(eventA).remove(eventB);
+				mm.get(eventA).put(eventB, pair);
+			}else{
+				mm.get(eventA).put(eventB, new Pair(1,  HF(eventA, eventB, ins)));
 				//mm.get(eventA).get(eventB).createPair(mm.get(eventA).get(eventB).getElement0()+1, HF(eventA, eventB, createInstance(eventA+"%"+eventB, classif)));//controllare se ne mette più di uno
 			}
 		}else{
 			HashMap<String, Pair<Integer, HoeffdingTree>> sec = new  HashMap<String, Pair<Integer, HoeffdingTree>>();
-			Instance ins = createInstance(eventA+"%"+eventB, classif);
+//			Instance ins = createInstance(eventA+"%"+eventB, classif);
 			Pair<Integer, HoeffdingTree> pair = new Pair(1,  HF(eventA, eventB, ins));			
 			sec.put(eventB, pair);
 			mm.put(eventA, sec);
@@ -63,7 +68,7 @@ public class LossyModel {
 		
 		long stop = System.currentTimeMillis();
 		
-		System.out.println("Lossy:"+(stop-start));
+		//System.out.println("Lossy:"+(stop-start));
 		return mm;
 	}
 	
@@ -80,48 +85,61 @@ public class LossyModel {
 			//colleziono le b e le rimuovo dopo il for
 		}
 		long stop = System.currentTimeMillis();
-		System.out.println("Clean:\t"+(stop-start));
+		//System.out.println("Clean:\t"+(stop-start));
 	}
 	
 	//********** Create and feed the Hoeffding tree **********
 	public HoeffdingTree HF(String A, String B, Instance instance){
 		HoeffdingTree hf = new HoeffdingTree();
-		if(mm.containsKey(A)&&!mm.get(A).containsKey(B)){ //instanceForTree.get(name).numInstances()>=5 && 
+		
+		Instances in = instanceForTree.get(A+"%"+B);
+		InstancesHeader ih = new InstancesHeader(in);
+		in.setClassIndex(0);
 
-			Instances in = instanceForTree.get(A+"%"+B);
-			InstancesHeader ih = new InstancesHeader(in);
-			in.setClassIndex(0);
+		hf.prepareForUse();
 
-			Attribute prova = in.attribute("class");
+		hf.setModelContext(ih);
+		hf.leafpredictionOption.setChosenLabel("MC");
+		hf.gracePeriodOption.setValue(5);
+		hf.splitConfidenceOption.setValue(1.0E-2);
 
-			hf.prepareForUse();
-
-			hf.setModelContext(ih);
-			hf.leafpredictionOption.setChosenLabel("MC");
-			hf.gracePeriodOption.setValue(5);
-			hf.splitConfidenceOption.setValue(1.0E-2);
-
-			hf.trainOnInstance(instance);
-			return hf;
-
-		}else if(mm.containsKey(A)&&mm.get(A).containsKey(B)) { 
-			//if(modello.hoeffCollection.containsKey(name)){ //instanceForTree.get(name).numInstances()>numInstUpdate && 
-
-			//hoeffCollection.get(name).updateClassifier(instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)); //instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)
-			Instances in = instanceForTree.get(A+"%"+B);
-
-			in.setClassIndex(0);
-//			System.out.println(mm.get(A).get(B).getElement1().trainingHasStarted());
-			if(mm.get(A).get(B).getElement1().trainingHasStarted())
-				mm.get(A).get(B).getElement1().trainOnInstance(instance);
-			
-			//hf = mm.get(A).get(B).getElement1();
-			//modello.hoeffCollection.get(name).updateClassifier(instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)); //instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)
-			instanceForTree.get(A+"%"+B).delete(instanceForTree.get(A+"%"+B).numInstances()-1);
-			//return hf;
-
-		}
+		hf.trainOnInstance(instance);
 		return hf;
+		
+//		if(mm.containsKey(A)&&!mm.get(A).containsKey(B)){ //instanceForTree.get(name).numInstances()>=5 && 
+//
+//			Instances in = instanceForTree.get(A+"%"+B);
+//			InstancesHeader ih = new InstancesHeader(in);
+//			in.setClassIndex(0);
+//
+//			hf.prepareForUse();
+//
+//			hf.setModelContext(ih);
+//			hf.leafpredictionOption.setChosenLabel("MC");
+//			hf.gracePeriodOption.setValue(5);
+//			hf.splitConfidenceOption.setValue(1.0E-2);
+//
+//			hf.trainOnInstance(instance);
+//			return hf;
+//
+//		}else if(mm.containsKey(A)&&mm.get(A).containsKey(B)) { 
+//			//if(modello.hoeffCollection.containsKey(name)){ //instanceForTree.get(name).numInstances()>numInstUpdate && 
+//
+//			//hoeffCollection.get(name).updateClassifier(instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)); //instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)
+//			Instances in = instanceForTree.get(A+"%"+B);
+//
+//			in.setClassIndex(0);
+////			System.out.println(mm.get(A).get(B).getElement1().trainingHasStarted());
+//			if(mm.get(A).get(B).getElement1().trainingHasStarted())
+//				mm.get(A).get(B).getElement1().trainOnInstance(instance);
+//			
+//			//hf = mm.get(A).get(B).getElement1();
+//			//modello.hoeffCollection.get(name).updateClassifier(instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)); //instanceForTree.get(name).instance(instanceForTree.get(name).numInstances()-1)
+//			instanceForTree.get(A+"%"+B).delete(instanceForTree.get(A+"%"+B).numInstances()-1);
+//			//return hf;
+//
+//		}
+//		return hf;
 	}
 		
 	public static boolean isNumeric(String str)  

@@ -94,8 +94,8 @@ public class AlternateResponse implements LCTemplateReplayer {
 		long start = System.currentTimeMillis();
 		long start1, start2, start3, start4, start5, stop1, stop2, stop3, stop4, stop5, time=0;
 		int currentBucket , pp=0;
-		bucketWidth=(int)(1000);
-		//en++;
+		//bucketWidth=(int)(1000);
+		en=0;
 		// Collection of attribute of new event
 
 		attribute = new HashMap<String, Object>();
@@ -267,13 +267,13 @@ public class AlternateResponse implements LCTemplateReplayer {
 		if(!counter.containsKey(event)){
 			if(activityLabelsAltResponse.size()>1){	
 				for(String existingEvent : activityLabelsAltResponse){
-					if(pp==cc)
-					{
-						pp=0;
-						break;
-					}else{
-						pp++;
-					}
+//					if(pp==cc)
+//					{
+//						pp=0;
+//						break;
+//					}else{
+//						pp++;
+//					}
 					if(!existingEvent.equals(event)){
 						int pend = 0;
 						if(activityLabelsCounterAltResponse.containsKey(trace)){
@@ -304,7 +304,7 @@ public class AlternateResponse implements LCTemplateReplayer {
 								currentBucket = nr/bucketWidth;		
 								if(nr>1 && nr<50){
 									start1 = System.currentTimeMillis();
-									mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, mc);
+									mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, bucketWidth, mc);
 									stop1 = System.currentTimeMillis();
 									time = time+stop1-start1;
 									en++;
@@ -326,7 +326,7 @@ public class AlternateResponse implements LCTemplateReplayer {
 							currentBucket = nr/bucketWidth;	
 							if(nr>1 && nr<50){
 								start2 = System.currentTimeMillis();
-								mc = mod.addObservation(existingEvent,event, myAttr, attribute, attIndex, 0, mc);
+								mc = mod.addObservation(existingEvent,event, myAttr, attribute, attIndex, 0, bucketWidth, mc);
 								stop2 = System.currentTimeMillis();
 								time = time+stop2-start2;
 								en++;
@@ -342,13 +342,13 @@ public class AlternateResponse implements LCTemplateReplayer {
 					}
 				}
 				for(String existingEvent : activityLabelsAltResponse){
-					if(pp==cc)
-					{
-						pp=0;
-						break;
-					}else{
-						pp++;
-					}
+//					if(pp==cc)
+//					{
+//						pp=0;
+//						break;
+//					}else{
+//						pp++;
+//					}
 					if(!existingEvent.equals(event)){
 						HashMap<String, Integer> secondElement = new  HashMap<String, Integer>();
 						if(pendingForThisTrace.containsKey(event)){
@@ -364,7 +364,7 @@ public class AlternateResponse implements LCTemplateReplayer {
 								currentBucket = nr/bucketWidth;			
 								if(nr>1 && nr<50){
 									start3 = System.currentTimeMillis();
-									mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 1, mc);
+									mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 1, bucketWidth, mc);
 									stop3 = System.currentTimeMillis();
 									time = time+stop3-start3;
 									en++;
@@ -383,13 +383,13 @@ public class AlternateResponse implements LCTemplateReplayer {
 		}else{
 
 			for(String firstElement : activityLabelsAltResponse){
-				if(pp==cc)
-				{
-					pp=0;
-					break;
-				}else{
-					pp++;
-				}
+//				if(pp==cc)
+//				{
+//					pp=0;
+//					break;
+//				}else{
+//					pp++;
+//				}
 				if(!firstElement.equals(event)){
 					HashMap<String, Integer> secondEl = new  HashMap<String, Integer>();
 					if(violatedForThisTrace.containsKey(firstElement)){
@@ -415,7 +415,7 @@ public class AlternateResponse implements LCTemplateReplayer {
 							currentBucket = nr/bucketWidth;		
 							if(nr>1 && nr<50){
 								start4 = System.currentTimeMillis();
-								mc = mod.addObservation(firstElement, event, myAttr, attribute, attIndex, 0, mc);
+								mc = mod.addObservation(firstElement, event, myAttr, attribute, attIndex, 0, bucketWidth, mc);
 								stop4 = System.currentTimeMillis();
 								time = time+stop4-start4;
 								en++;
@@ -437,13 +437,13 @@ public class AlternateResponse implements LCTemplateReplayer {
 			}
 			HashMap<String, Integer> secondElement = pendingForThisTrace.get(event);
 			for(String second : activityLabelsAltResponse){
-				if(pp==cc)
-				{
-					pp=0;
-					break;
-				}else{
-					pp++;
-				}
+//				if(pp==cc)
+//				{
+//					pp=0;
+//					break;
+//				}else{
+//					pp++;
+//				}
 				if(!second.equals(event) && secondElement!=null){
 					Integer pendingNo = 1;
 					if(secondElement.containsKey(second)){
@@ -456,7 +456,7 @@ public class AlternateResponse implements LCTemplateReplayer {
 						currentBucket = nr/bucketWidth;	
 						if(nr>1 && nr<50){
 							start5 = System.currentTimeMillis();
-							mc = mod.addObservation(event, second, myAttr, attribute, attIndex, 1, mc);
+							mc = mod.addObservation(event, second, myAttr, attribute, attIndex, 1, bucketWidth, mc);
 							stop5 = System.currentTimeMillis();
 							time = time+stop5-start5;
 							en++;
@@ -491,7 +491,7 @@ public class AlternateResponse implements LCTemplateReplayer {
 		
 		
 		long stop = System.currentTimeMillis()-start;
-//		System.out.println("AltRe:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time);
+		System.out.println("AltRe:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
 //		printout.println(System.currentTimeMillis()-start);
 //		printout.flush();
 //		printout.close();

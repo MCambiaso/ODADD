@@ -19,6 +19,9 @@ import org.processmining.operationalsupport.xml.OSXMLConverter;
 
 import Utils.Utils;
 import LossyCounting.LCReplayer;
+import moa.core.*;
+import moa.classifiers.trees.HoeffdingTree;
+import moa.*;
 
 //import 
 /**
@@ -37,16 +40,18 @@ public class Entry {
 	}
 
 	public static void main(String[] args) throws IOException {
+		long start = System.currentTimeMillis();
 		AttributeValue();
+		System.out.println("Preprocessing Time:\t"+(System.currentTimeMillis()-start));
 		Run();
-
+		System.out.println("Total Time:\t"+(System.currentTimeMillis()-start));
 	}
 	
 	public static void Run() throws IOException {
 		int ne=0;
 		//Socket s = new Socket(address, port);
 
-		InputStream in = new FileInputStream(new File("/home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/Log/logTest2"));///home/matte/Scaricati/logTest2------------hospitalStream logTest2 CompleteHospital Experiments/40x20x5000
+		InputStream in = new FileInputStream(new File("/home/matte/Scaricati/logTest3"));////home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/Log/logTest2------------hospitalStream logTest2 CompleteHospital Experiments/40x20x5000
 
 //		status.setText("Miner started. Collecting events...");
 //		status.setIcon(UIColors.loadingIcon);
@@ -72,12 +77,13 @@ public class Entry {
 		br.close();
 
 		replayer.results();
+		System.out.println("End!");
 		//s.close();
 	}
 	
 	public static void AttributeValue(){
 		try {
-			InputStream in = new FileInputStream(new File("/home/matte/Scaricati/logTest2"));//Scrivania/3activitiesResponse logTest3CompleteHospital
+			InputStream in = new FileInputStream(new File("/home/matte/Scaricati/logTest3"));//Scrivania/3activitiesResponse logTest3CompleteHospital
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			int i=0;
 			String str = "";
