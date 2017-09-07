@@ -1,0 +1,10 @@
+Entry.java:
+	-Line 36: bucketWidth for lossyConuting.java (hold lossy conunting from streamDeclareDiscovery)
+
+LossyModel.java:
+	-Line 31: bcuket
+	-Line 99to102 and 113: set the options for hoeffding tree (add link to documentations)
+
+All Constraints .java files:
+	-process method: bucketWidth
+	-class variables: cc (variable for discovery rules limitation)
