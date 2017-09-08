@@ -16,29 +16,23 @@ import org.deckfour.xes.model.XTrace;
 import moa.classifiers.trees.HoeffdingTree;
 import LossyCounting.LossyCounting;
 import LossyCounting.LCTemplateReplayer;
-import Utils.ComputeKPI;
-//import prompt.onlinedeclare.utils.DeclareModel;
 import Utils.Pair;
 import Utils.Utils;
 
 import com.yahoo.labs.samoa.instances.*;
-import moa.classifiers.trees.HoeffdingTree;
-import moa.core.*;
 
 public class AlternateResponse implements LCTemplateReplayer {
 	
 	private HashMap<String, ArrayList<HashMap<String, Object>>> snapCollection = new HashMap<String, ArrayList<HashMap<String, Object>>>();
-	private HashMap<String, Instances> instanceForTree = new HashMap<String, Instances>();
 	private HashMap<String, Object> attribute;
-	private HashMap<String, ArrayList<String>> nominal = new HashMap<String, ArrayList<String>>();
 	ArrayList<Attribute> myAttr = new ArrayList<Attribute>(20);
 	ArrayList<Attribute> myAttrTr ;
 	private HashMap<String, Integer> attIndex = new HashMap<String, Integer>();
 	
-	private static HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
+	//private static HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
 	private LossyModel mod = new LossyModel();
 	boolean first = true, fulf = true;
-    private Model modello = new Model();
+	
 	int nr = 0, en=0, cc=10;
 
 	private HashSet<String> activityLabelsAltResponse = new HashSet<String>();
@@ -90,17 +84,13 @@ public class AlternateResponse implements LCTemplateReplayer {
 
 	@Override
 	public void process(XEvent eve, XTrace tr, HashMap<String, ArrayList<String>> nomin, Integer bucketWidth) {
-//		Model modello = model;
 		long start = System.currentTimeMillis();
 		long start1, start2, start3, start4, start5, stop1, stop2, stop3, stop4, stop5, time=0;
-		int currentBucket , pp=0;
-		//bucketWidth=(int)(1000);
 		en=0;
+		
 		// Collection of attribute of new event
-
 		attribute = new HashMap<String, Object>();
 		myAttrTr = new ArrayList<Attribute>(100);
-
 
 		ArrayList<String> classe = new ArrayList<String>(2);
 		classe.add("FULFILLMENT");
@@ -228,7 +218,7 @@ public class AlternateResponse implements LCTemplateReplayer {
 		
 		for(Attribute attr : myAttr){
 			if(!attIndex.containsKey(attr.name()) && !attr.name().equals("class")){
-				String attrib = attr.name();
+				//String attrib = attr.name();
 				attIndex.put(attr.name(), nomin.get(attr.name()).indexOf("0"));
 			}
 		}
@@ -266,14 +256,7 @@ public class AlternateResponse implements LCTemplateReplayer {
 
 		if(!counter.containsKey(event)){
 			if(activityLabelsAltResponse.size()>1){	
-				for(String existingEvent : activityLabelsAltResponse){
-//					if(pp==cc)
-//					{
-//						pp=0;
-//						break;
-//					}else{
-//						pp++;
-//					}
+				for(String existingEvent : counter.keySet()){//activityLabelsAltResponse){
 					if(!existingEvent.equals(event)){
 						int pend = 0;
 						if(activityLabelsCounterAltResponse.containsKey(trace)){
@@ -290,27 +273,25 @@ public class AlternateResponse implements LCTemplateReplayer {
 							if(violatedForThisTrace.containsKey(existingEvent)){
 								secondEl = violatedForThisTrace.get(existingEvent);
 							}
-							int numPend =0;
-							if(secondElement!=null && secondElement.containsKey(event)){
-								numPend = secondElement.get(event);
-							}else{
-								numPend = snapCollection.get(existingEvent).size();
-							}
+//							int numPend =0;
+//							if(secondElement!=null && secondElement.containsKey(event)){
+//								numPend = secondElement.get(event);
+//							}else{
+//								numPend = snapCollection.get(existingEvent).size();
+//							}
 							if(!snapCollection.get(existingEvent).isEmpty()){
 								attribute = snapCollection.get(existingEvent).get(snapCollection.get(existingEvent).size()-1);
-								//HF(existingEvent+"%"+event, createInstance(existingEvent+"%"+event, 0), modello);						
 								fulf = true;
 								nr++;
-								currentBucket = nr/bucketWidth;		
-								if(nr>1 && nr<50){
+								
+								if(nr>1){
 									start1 = System.currentTimeMillis();
-									mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, bucketWidth, mc);
+									mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, bucketWidth);
 									stop1 = System.currentTimeMillis();
 									time = time+stop1-start1;
 									en++;
 									nr=1;
 								}
-								//modello.addObservation(event, existingEvent, currentBucket, bucketWidth, fulf);
 								snapCollection.get(existingEvent).remove(snapCollection.get(existingEvent).size()-1);			
 							}
 							//fulfillment solo per l'ultima attivazione
@@ -319,36 +300,29 @@ public class AlternateResponse implements LCTemplateReplayer {
 							violatedConstraintsPerTrace.putItem(trace, violatedForThisTrace);
 						}
 						if(pend==1 && snapCollection.get(existingEvent).size()>0){
-							attribute = snapCollection.get(existingEvent).get(0);
-							//HF(existingEvent+"%"+event, createInstance(existingEvent+"%"+event, 0), modello);						
+							attribute = snapCollection.get(existingEvent).get(0);						
 							fulf = true;
 							nr++;
-							currentBucket = nr/bucketWidth;	
-							if(nr>1 && nr<50){
+							
+							if(nr>1){
 								start2 = System.currentTimeMillis();
-								mc = mod.addObservation(existingEvent,event, myAttr, attribute, attIndex, 0, bucketWidth, mc);
+								mod.addObservation(existingEvent,event, myAttr, attribute, attIndex, 0, bucketWidth);
 								stop2 = System.currentTimeMillis();
 								time = time+stop2-start2;
 								en++;
 								nr=1;
 							}
-							//modello.addObservation(event, existingEvent, currentBucket, bucketWidth, fulf);
 							//fulfillment existingEvent+event
 						}
+						if(secondElement!=null){
 						secondElement.put(event, 0);
 						pendingForThisTrace.put(existingEvent, secondElement);
-
-						//	pendingConstraintsPerTraceAlt.put(trace, pendingForThisTrace);
+						}
+						//pendingConstraintsPerTraceAlt.put(trace, pendingForThisTrace);
 					}
 				}
-				for(String existingEvent : activityLabelsAltResponse){
-//					if(pp==cc)
-//					{
-//						pp=0;
-//						break;
-//					}else{
-//						pp++;
-//					}
+				
+				for(String existingEvent : counter.keySet()){//activityLabelsAltResponse){
 					if(!existingEvent.equals(event)){
 						HashMap<String, Integer> secondElement = new  HashMap<String, Integer>();
 						if(pendingForThisTrace.containsKey(event)){
@@ -357,22 +331,19 @@ public class AlternateResponse implements LCTemplateReplayer {
 						if(secondElement.containsKey(existingEvent)){
 							int pend = secondElement.get(existingEvent);
 							if(pend==1){
-								attribute = snapCollection.get(existingEvent).get(pend-1);
-								//HF(existingEvent+"%"+event, createInstance(existingEvent+"%"+event, 1), modello);						
+								attribute = snapCollection.get(existingEvent).get(pend-1);					
 								fulf = false;
-								nr++;
-								currentBucket = nr/bucketWidth;			
-								if(nr>1 && nr<50){
+								nr++;			
+								if(nr>1){
 									start3 = System.currentTimeMillis();
-									mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 1, bucketWidth, mc);
+									mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 1, bucketWidth);
 									stop3 = System.currentTimeMillis();
 									time = time+stop3-start3;
 									en++;
 									nr=1;
 								}
-								//modello.addObservation(existingEvent, event, currentBucket, bucketWidth, fulf);
 							}
-								//violation dell'attivazione precedente (ricorda attributi)
+							//violation dell'attivazione precedente (ricorda attributi)
 						}
 						secondElement.put(existingEvent, 1);
 						pendingForThisTrace.put(event,secondElement);
@@ -382,14 +353,7 @@ public class AlternateResponse implements LCTemplateReplayer {
 			}
 		}else{
 
-			for(String firstElement : activityLabelsAltResponse){
-//				if(pp==cc)
-//				{
-//					pp=0;
-//					break;
-//				}else{
-//					pp++;
-//				}
+			for(String firstElement : counter.keySet()){//activityLabelsAltResponse){
 				if(!firstElement.equals(event)){
 					HashMap<String, Integer> secondEl = new  HashMap<String, Integer>();
 					if(violatedForThisTrace.containsKey(firstElement)){
@@ -408,20 +372,17 @@ public class AlternateResponse implements LCTemplateReplayer {
 						}
 						
 						if(snapCollection.get(firstElement).size()>0){
-							attribute = snapCollection.get(firstElement).get(snapCollection.get(firstElement).size()-1);
-							//HF(firstElement+"%"+event, createInstance(firstElement+"%"+event, 0), modello);						
+							attribute = snapCollection.get(firstElement).get(snapCollection.get(firstElement).size()-1);						
 							fulf = true;
-							nr++;
-							currentBucket = nr/bucketWidth;		
-							if(nr>1 && nr<50){
+							nr++;	
+							if(nr>1){
 								start4 = System.currentTimeMillis();
-								mc = mod.addObservation(firstElement, event, myAttr, attribute, attIndex, 0, bucketWidth, mc);
+								mod.addObservation(firstElement, event, myAttr, attribute, attIndex, 0, bucketWidth);
 								stop4 = System.currentTimeMillis();
 								time = time+stop4-start4;
 								en++;
 								nr=1;
 							}
-							//modello.addObservation(, event, currentBucket, bucketWidth, fulf);
 						}
 						//solo l'ultima è una fulfillment tra firstElement ed event
 						secondEl.put(event, totviol + violNo-1);
@@ -432,38 +393,28 @@ public class AlternateResponse implements LCTemplateReplayer {
 					pendingForThisTrace.put(firstElement, secondElement);
 
 					pendingConstraintsPerTraceAlt.putItem(trace, pendingForThisTrace);
-
 				}
 			}
+			
 			HashMap<String, Integer> secondElement = pendingForThisTrace.get(event);
-			for(String second : activityLabelsAltResponse){
-//				if(pp==cc)
-//				{
-//					pp=0;
-//					break;
-//				}else{
-//					pp++;
-//				}
+			for(String second : counter.keySet()){//activityLabelsAltResponse){
 				if(!second.equals(event) && secondElement!=null){
 					Integer pendingNo = 1;
 					if(secondElement.containsKey(second)){
 						pendingNo = secondElement.get(second);	
 						pendingNo ++;
-						attribute = snapCollection.get(event).get(snapCollection.get(event).size()-1);
-						//HF(event+"%"+second, createInstance(event+"%"+second, 1), modello);						
+						attribute = snapCollection.get(event).get(snapCollection.get(event).size()-1);			
 						fulf = false;
-						nr++;
-						currentBucket = nr/bucketWidth;	
-						if(nr>1 && nr<50){
+						nr++;	
+						if(nr>1){
 							start5 = System.currentTimeMillis();
-							mc = mod.addObservation(event, second, myAttr, attribute, attIndex, 1, bucketWidth, mc);
+							mod.addObservation(event, second, myAttr, attribute, attIndex, 1, bucketWidth);
 							stop5 = System.currentTimeMillis();
 							time = time+stop5-start5;
 							en++;
 							nr=1;
 						}
-						//modello.addObservation(event, second, currentBucket, bucketWidth, fulf);
-//						violation tra event e second prendendo lo snapshot del event precedente						
+						//violation tra event e second prendendo lo snapshot del event precedente						
 					}
 					secondElement.put(second, pendingNo);
 				}
@@ -488,21 +439,16 @@ public class AlternateResponse implements LCTemplateReplayer {
 		}
 		activityLabelsCounterAltResponse.putItem(trace, counter);
 		//***********************
-		
-		
-		long stop = System.currentTimeMillis()-start;
+		mod.clean();
 		System.out.println("AltRe:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
-//		printout.println(System.currentTimeMillis()-start);
-//		printout.flush();
-//		printout.close();
 	}
 
 	@Override
 	public void results(){
-		for(String aEvent : mc.keySet()){ 
-			for(String bEvent : mc.get(aEvent).keySet()){
+		for(String aEvent : mod.mm.keySet()){ 
+			for(String bEvent : mod.mm.get(aEvent).keySet()){
 				printout.println("@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
-				printout.println(mc.get(aEvent).get(bEvent).getElement1());
+				printout.println(mod.mm.get(aEvent).get(bEvent).getElement1());
 			}
 		}	
 //			System.out.println("AltPrec"+"\t"+fulfill+"\t"+(act-fulfill));

@@ -17,28 +17,20 @@ import org.deckfour.xes.model.XTrace;
 import moa.classifiers.trees.HoeffdingTree;
 import LossyCounting.LossyCounting;
 import LossyCounting.LCTemplateReplayer;
-import Utils.ComputeKPI;
-//import prompt.onlinedeclare.utils.DeclareModel;
 import Utils.Pair;
 import Utils.Utils;
 
 import com.yahoo.labs.samoa.instances.*;
 
-import moa.classifiers.trees.HoeffdingTree;
-import moa.core.*;
-
 public class Precedence implements LCTemplateReplayer {
 	
-	private HashMap<String, Instances> instanceForTree = new HashMap<String, Instances>();
 	private HashMap<String, Object> attribute;
-	private HashMap<String, ArrayList<String>> nominal = new HashMap<String, ArrayList<String>>();
 	ArrayList<Attribute> myAttr = new ArrayList<Attribute>(20);
 	ArrayList<Attribute> myAttrTr ;
 	private HashMap<String, Integer> attIndex = new HashMap<String, Integer>();
 	
 	boolean first = true, fulf = true;
-	private Model modello = new Model();
-	private static HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
+	//private static HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
 	private static HashMap<String, LinkedList<String>> eventList = new HashMap<String, LinkedList<String>>();
 	private LossyModel mod = new LossyModel();
 
@@ -85,15 +77,10 @@ public class Precedence implements LCTemplateReplayer {
 	
 	@Override
 	public void process(XEvent eve, XTrace tr, HashMap<String, ArrayList<String>> nomin, Integer bucketWidth) {
-//		Model modello = model;
-		HashMap<String, Integer> ex3 = new HashMap<String, Integer>();
-		@SuppressWarnings("rawtypes")
-		Class class3 = ex3.getClass();
 		long start = System.currentTimeMillis();
-		long start1, start2, start3, start4, start5, stop1, stop2, stop3, stop4, stop5, time=0;
+		long start1, start2, stop1, stop2, time=0;
 		
 		//********** Set Parameter for LossyCounting **********
-		int currentBucket , pp=0;
 		//bucketWidth=(int)(1000);
 		//en++;
 		en = 0;
@@ -229,7 +216,7 @@ public class Precedence implements LCTemplateReplayer {
 		
 		for(Attribute attr : myAttr){
 			if(!attIndex.containsKey(attr.name()) && !attr.name().equals("class")){
-				String attrib = attr.name();
+				//String attrib = attr.name();
 				attIndex.put(attr.name(), nomin.get(attr.name()).indexOf("0"));
 			}
 		}
@@ -262,13 +249,6 @@ public class Precedence implements LCTemplateReplayer {
 		
 		if (list.size()>1){//activityLabelsPrecedence.size() > 1) {
 			for (String existingEvent : list){//activityLabelsPrecedence) {
-//				if(pp==cc)
-//				{
-//					pp=0;
-//					break;
-//				}else{
-//					pp++;
-//				}
 				if (!existingEvent.equals(event)) {
 					HashMap<String, Integer> secondElement = new HashMap<String, Integer>();
 					int fulfillments = 0;
@@ -281,97 +261,41 @@ public class Precedence implements LCTemplateReplayer {
 					if (counter.containsKey(existingEvent)) {
 						secondElement.put(event, fulfillments + 1);
 						fulfilledForThisTrace.put(existingEvent, secondElement);
-//						createInstance(existingEvent+"%"+event, 0);
-//						if(numberViolFul.containsKey(existingEvent+"-"+event)){
-//							Pair<Integer, Integer> nn = numberViolFul.get(existingEvent+"-"+event);
-//							numberViolFul.remove(existingEvent+"-"+event);
-//							numberViolFul.put(existingEvent+"-"+event, new Pair<Integer, Integer>(nn.getFirst()+1, nn.getSecond()));
-//						}else{
-//							numberViolFul.put(existingEvent+"-"+event, new Pair<Integer, Integer>(1, 0));
-//						}
-						//HF(existingEvent+"%"+event, createInstance(existingEvent+"%"+event, 0), modello);						
+
 						fulf = true;
 						nr++;
-						currentBucket = nr/bucketWidth;	
+
 						if(nr>1){
 							start1 = System.currentTimeMillis();
-							mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, bucketWidth, mc);
+							mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, bucketWidth);
 							stop1 = System.currentTimeMillis();
 							time = time+stop1-start1;
 							en++;
 							nr=1;
-						}
-						//modello.addObservation(event, existingEvent, currentBucket, bucketWidth, fulf);
-//						if(modello.containsKey(event)){
-//							if(!modello.get(event).getFirst().containsKey(existingEvent)){
-//								int freq = 0;
-//								modello.AtoB.get(event).put(existingEvent, freq++);
-//								HashMap<String, Integer> bColl = modello.getItem(event);
-//								bColl.put(existingEvent, freq);
-//								modello.addObservation(event, currentBucket, ex3, bucketWidth, bColl);								
-//							}else{
-//								int freq = modello.get(event).getFirst().get(existingEvent)+1;
-//								modello.AtoB.get(event).put(existingEvent, freq);
-//								HashMap<String, Integer> bColl = modello.getItem(event);									
-//								bColl.put(existingEvent, freq);
-//								modello.addObservation(event, currentBucket, ex3, bucketWidth, bColl);
-//							}
-//						}else{		
-//							int freq = 1;	
-//							HashMap<String, Integer> bColl = new HashMap<String, Integer>();								
-//							bColl.put(existingEvent, freq);								
-//							modello.AtoB.put(event, bColl);
-//							modello.addObservation(event, currentBucket, ex3, bucketWidth, bColl);						
-//						}														
+						}														
 					}	
 				}				
 			}
-			
-			if(mc.containsKey(event)){
-				ArrayList<String> actEve = new ArrayList<String>(mc.get(event).keySet());
-				for(String secEl : actEve){	
-//					if(pp==cc)
-//					{
-//						pp=0;
-//						break;
-//					}else{
-//						pp++;
-//					}
-						if(!counter.containsKey(secEl)){	
-//							createInstance(secEl+"%"+event, 1);
-//							if(numberViolFul.containsKey(secEl+"-"+eveif(!myAttrTr.contains(attr.getKey())){
-//							myAttrTr.add(new Attribute(attr.getKey(), nomin.get(attr.getKey())));
-//							}nt)){
-//								Pair<Integer, Integer> nn = numberViolFul.get(secEl+"-"+event);
-//								numberViolFul.remove(secEl+"-"+event);
-//								numberViolFul.put(secEl+"-"+event, new Pair<Integer, Integer>(nn.getFirst(), nn.getSecond()+1));
-//							}else{
-//								numberViolFul.put(secEl+"-"+event, new Pair<Integer, Integer>(0, 1));
-//							}
-							//HF(secEl+"%"+event, createInstance(secEl+"%"+event, 1), modello);
-							fulf = false;
-							nr++;
-							currentBucket = nr/bucketWidth;
-							//modello.addObservation(event, secEl, currentBucket, bucketWidth, fulf);
-							if(nr>1){
-								start2 = System.currentTimeMillis();
-								mc = mod.addObservation(secEl, event, myAttr, attribute, attIndex, 1, bucketWidth, mc); 
-								stop2 = System.currentTimeMillis();
-								time = time+stop2-start2;
-								en++;
-								nr=1;	
-							}
-//							Integer freq = modello.get(event).getFirst().get(secEl)+1;
-//							modello.AtoB.get(event).put(secEl, freq);
-//							HashMap<String, Integer> bColl = modello.getItem(event);
-//							bColl.put(secEl, freq);
-//							modello.addObservation(event, currentBucket, ex3, bucketWidth, bColl);							
-						}					
+
+			if(mod.mm.containsKey(event)){
+				ArrayList<String> actEve = new ArrayList<String>(mod.mm.get(event).keySet());
+				for(String secEl : actEve){
+					if(!counter.containsKey(secEl)){
+						fulf = false;
+						nr++;
+
+						if(nr>1){
+							start2 = System.currentTimeMillis();
+							mod.addObservation(secEl, event, myAttr, attribute, attIndex, 1, bucketWidth); 
+							stop2 = System.currentTimeMillis();
+							time = time+stop2-start2;
+							en++;
+							nr=1;	
+						}						
+					}					
 				}
 			}
 			fulfilledConstraintsPerTrace.putItem(caseId, fulfilledForThisTrace);
-			
-//			if(eve.getAttributes()=="end")
 		}
 		
 		// update the counter for the current trace and the current event
@@ -386,10 +310,8 @@ public class Precedence implements LCTemplateReplayer {
 			counter.put(event, numberOfEvents);
 		}
 		activityLabelsCounterPrecedence.putItem(caseId, counter);
-		
-		XAttribute sttt =  eve.getAttributes().get("stream:lifecycle:trace-transition");
-//		System.out.println(eve.getAttributes().get("stream:lifecycle:trace-transition").toString());
-		if(sttt!=null && eve.getAttributes().get("stream:lifecycle:trace-transition").toString().equals("complete")){
+				
+		if(Utils.isTraceComplete(eve)){
 			activityLabelsCounterPrecedence.remove(caseId);
 			fulfilledConstraintsPerTrace.remove(caseId);
 		}
@@ -403,28 +325,20 @@ public class Precedence implements LCTemplateReplayer {
 		
 		//System.out.println(list.size());
 		
-		
-		//System.out.println("Ghe sun");
-		
-		//if(eve.getAttributes().values().contains("trace-transition").toString()=="complete")
-		
 		//*********************** Hoeffding tree **************************
-		
+		mod.clean();
 		//System.out.println(en);
-		//System.out.println("Pr:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
-//		printout.println(System.currentTimeMillis()-start);
-//		printout.flush();
-//		printout.close();
+		System.out.println("Pr:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
 	}
 	
 	@Override
 	public void results(){
-		for(String aEvent : mc.keySet()){ 
-			for(String bEvent : mc.get(aEvent).keySet()){
+		for(String aEvent : mod.mm.keySet()){ 
+			for(String bEvent : mod.mm.get(aEvent).keySet()){
 				printout.println("@@@@@@@@@@@@@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
 //				System.out.println(mc.get(aEvent).get(bEvent).getElement0());
 //				System.out.println(mc.get(aEvent).get(bEvent).getElement1());
-				printout.println(mc.get(aEvent).get(bEvent).getElement1());
+				printout.println(mod.mm.get(aEvent).get(bEvent).getElement1());
 			}
 		}	
 //			System.out.println("AltPrec"+"\t"+fulfill+"\t"+(act-fulfill));

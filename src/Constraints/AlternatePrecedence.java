@@ -15,35 +15,24 @@ import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XTrace;
 
 import com.yahoo.labs.samoa.instances.Attribute;
-import com.yahoo.labs.samoa.instances.DenseInstance;
-import com.yahoo.labs.samoa.instances.Instance;
-import com.yahoo.labs.samoa.instances.Instances;
-import com.yahoo.labs.samoa.instances.InstancesHeader;
 
 import moa.classifiers.trees.HoeffdingTree;
 import LossyCounting.LossyCounting;
 import LossyCounting.LCTemplateReplayer;
-import Utils.ComputeKPI;
 
 import Utils.Pair;
 import Utils.Utils;
 
-import com.yahoo.labs.samoa.instances.*;
-
-import moa.core.*;
-
 public class AlternatePrecedence implements LCTemplateReplayer {
 	
-	private HashMap<String, Instances> instanceForTree = new HashMap<String, Instances>();
 	private HashMap<String, Object> attribute;
-//	private HashMap<String, ArrayList<String>> nominal = new HashMap<String, ArrayList<String>>();
 	ArrayList<Attribute> myAttr = new ArrayList<Attribute>(20);
 	ArrayList<Attribute> myAttrTr ;
 	private HashMap<String, Integer> attIndex = new HashMap<String, Integer>();
 	
 	boolean first = true, fulf = true;
-	private Model modello = new Model();
-	private static HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
+	
+	//private static HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
 	private static HashMap<String, LinkedList<String>> eventList = new HashMap<String, LinkedList<String>>();
 	private LossyModel mod = new LossyModel();
 	int nr = 0, en=0, cc=10;
@@ -100,17 +89,14 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 
 	@Override
 	public void process(XEvent eve, XTrace tr, HashMap<String, ArrayList<String>> nomin, Integer bucketWidth) {
-
-		int currentBucket , pp=0;
 		long start = System.currentTimeMillis();
-		long start1, start2, start3, start4, start5, stop1, stop2, stop3, stop4, stop5, time=0;
-		//bucketWidth=(int)(1000);
-		en=0;
-		// Collection of attribute of new event
-
-		attribute = new HashMap<String, Object>();
-		myAttrTr = new ArrayList<Attribute>(100);
+		long start1, start2, start3, start4, stop1, stop2, stop3, stop4, time=0;
 		
+		en=0;
+		
+		// Collection of attribute of new event
+		attribute = new HashMap<String, Object>();
+		myAttrTr = new ArrayList<Attribute>(100);		
 
 		ArrayList<String> classe = new ArrayList<String>(2);
 		classe.add("FULFILLMENT");
@@ -238,14 +224,12 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 		
 		for(Attribute attr : myAttr){
 			if(!attIndex.containsKey(attr.name()) && !attr.name().equals("class")){
-				String attrib = attr.name();
 				attIndex.put(attr.name(), nomin.get(attr.name()).indexOf("0"));
 			}
 		}
 		
 		String caseId = Utils.getCaseID(tr);
 		String event = Utils.getActivityName(eve);
-		
 		
 		LinkedList<String> list = new LinkedList<String>();
 		if(eventList.containsKey(caseId))
@@ -321,15 +305,13 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 					if(counter.containsKey(existingEvent)){
 						if(satisfactionsForThisTrace.get(existingEvent) == null || satisfactionsForThisTrace.get(existingEvent).get(event) == null || satisfactionsForThisTrace.get(existingEvent).get(event)<2){
 							if(!violated){
-								//fulfillment ex+event event
-								//HF(existingEvent+"%"+event, createInstance(existingEvent+"%"+event, 0), modello);						
+								//fulfillment ex+event event						
 								fulf = true;
 								nr++;
-								currentBucket = nr/bucketWidth;						
-								//modello.addObservation(existingEvent, event, currentBucket, bucketWidth, fulf);
-								if(nr>1 && nr<50){
+
+								if(nr>1){
 									start1 = System.currentTimeMillis();
-									mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, bucketWidth, mc);
+									mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, bucketWidth);
 									stop1 = System.currentTimeMillis();
 									time = time+stop1-start1;
 									en++;
@@ -338,57 +320,52 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 								secondElement.put(event, fulfillments + 1);
 								fulfilledForThisTrace.put(existingEvent, secondElement);
 							}else{
-								//HF(existingEvent+"%"+event, createInstance(existingEvent+"%"+event, 1), modello);
+								//violation
 								fulf = false;
 								nr++;
-								currentBucket = nr/bucketWidth;
-								if(nr>1 && nr<50){
+
+								if(nr>1){
 									start2 = System.currentTimeMillis();
-									mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 1, bucketWidth, mc);
+									mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 1, bucketWidth);
 									stop2 = System.currentTimeMillis();
 									time = time+stop2-start2;
 									en++;
-									nr=1;
+									nr=1; 
 								}
-								//modello.addObservation(existingEvent, event, currentBucket, bucketWidth, fulf);
-								//else violation
 							}
 						}else{
-							//HF(existingEvent+"%"+event, createInstance(existingEvent+"%"+event, 1), modello);
+							//violation
 							fulf = false;
 							nr++;
-							currentBucket = nr/bucketWidth;
-							if(nr>1 && nr<50){
+
+							if(nr>1){
 								start3 = System.currentTimeMillis();
-								mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 1, bucketWidth, mc);
+								mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 1, bucketWidth);
 								stop3 = System.currentTimeMillis();
 								time = time+stop3-start3;
 								en++;
 								nr=1;
 							}
-							//modello.addObservation(existingEvent, event, currentBucket, bucketWidth, fulf);
-							//else violation
 						}
 					}else{
-						//HF(existingEvent+"%"+event, createInstance(existingEvent+"%"+event, 1), modello);
+						//violation
 						fulf = false;
 						nr++;
-						currentBucket = nr/bucketWidth;
-						if(nr>1 && nr<50){
+						
+						if(nr>1){
 							start4 = System.currentTimeMillis();
-							mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 1, bucketWidth, mc);
+							mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 1, bucketWidth);
 							stop4 = System.currentTimeMillis();
 							time = time+stop4-start4;
 							en++;
 							nr=1;
 						}
-						//modello.addObservation(existingEvent, event, currentBucket, bucketWidth, fulf);
-						//else violation
 					}
 				}
 			}
 			fulfilledConstraintsPerTraceAlt.putItem(caseId, fulfilledForThisTrace);
 		}
+		
 		int numberOfEvents = 1;
 		if(!counter.containsKey(event)){
 			counter.put(event, numberOfEvents);
@@ -399,9 +376,7 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 		}
 		activityLabelsCounterAltPrecedence.putItem(caseId, counter);
 		
-		XAttribute sttt =  eve.getAttributes().get("stream:lifecycle:trace-transition");
-//		System.out.println(eve.getAttributes().get("stream:lifecycle:trace-transition").toString());
-		if(sttt!=null && eve.getAttributes().get("stream:lifecycle:trace-transition").toString().equals("complete")){
+		if(Utils.isTraceComplete(eve)){
 			activityLabelsCounterAltPrecedence.remove(caseId);
 			fulfilledConstraintsPerTraceAlt.remove(caseId);
 			eventList.remove(caseId);
@@ -414,20 +389,17 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 		eventList.remove(caseId);
 		eventList.put(caseId, list);
 		
+		mod.clean();
 		//System.out.println(en);
-		//System.out.println("AltPr:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
-//		printout.println(System.currentTimeMillis()-start);
-//		printout.flush();
-//		printout.close();
-		
+		System.out.println("AltPr:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
 	}
 	
 	@Override
 	public void results(){
-		for(String aEvent : mc.keySet()){ 
-			for(String bEvent : mc.get(aEvent).keySet()){
+		for(String aEvent : mod.mm.keySet()){ 
+			for(String bEvent : mod.mm.get(aEvent).keySet()){
 				printout.println("@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
-				printout.println(mc.get(aEvent).get(bEvent).getElement1());
+				printout.println(mod.mm.get(aEvent).get(bEvent).getElement1());
 			}
 		}	
 //			System.out.println("AltPrec"+"\t"+fulfill+"\t"+(act-fulfill));

@@ -16,28 +16,20 @@ import org.deckfour.xes.model.XTrace;
 import moa.classifiers.trees.HoeffdingTree;
 import LossyCounting.LossyCounting;
 import LossyCounting.LCTemplateReplayer;
-import Utils.ComputeKPI;
-//import prompt.onlinedeclare.utils.DeclareModel;
 import Utils.Pair;
 import Utils.Utils;
 
 import com.yahoo.labs.samoa.instances.*;
 
-import moa.classifiers.trees.HoeffdingTree;
-import moa.core.*;
-
 public class ChainResponse implements LCTemplateReplayer {
 
-	private HashMap<String, Instances> instanceForTree = new HashMap<String, Instances>();
-	private HashMap<String, Object> attribute;
-	private HashMap<String, ArrayList<String>> nominal = new HashMap<String, ArrayList<String>>();
+	private HashMap<String, Object> attribute;	
 	ArrayList<Attribute> myAttr = new ArrayList<Attribute>(20);
 	ArrayList<Attribute> myAttrTr ;
 	private HashMap<String, Integer> attIndex = new HashMap<String, Integer>();
 	
 	boolean first = true, fulf = true;
-	private Model modello = new Model();
-	private static HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
+	//private static HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
 	private LossyModel mod = new LossyModel();
 	int nr = 0, en=0, cc=10;
 	
@@ -90,19 +82,14 @@ public class ChainResponse implements LCTemplateReplayer {
 
 	@Override
 	public void process(XEvent eve, XTrace tr, HashMap<String, ArrayList<String>> nomin, Integer bucketWidth) {
-//		Model modello = model;
-		int currentBucket , pp=0;
 		long start = System.currentTimeMillis();
-		long start1, start2, start3, start4, start5, stop1, stop2, stop3, stop4, stop5, time=0;
-		//bucketWidth=(int)(1000);
-		//en++;
+		long start1, start2, stop1, stop2, time=0;
 		en = 0;
 		// Collection of attribute of new event
 
 		attribute = new HashMap<String, Object>();
 		myAttrTr = new ArrayList<Attribute>(100);
 		
-
 		ArrayList<String> classe = new ArrayList<String>(2);
 		classe.add("FULFILLMENT");
 		classe.add("VIOLATION");
@@ -229,7 +216,7 @@ public class ChainResponse implements LCTemplateReplayer {
 		
 		for(Attribute attr : myAttr){
 			if(!attIndex.containsKey(attr.name()) && !attr.name().equals("class")){
-				String attrib = attr.name();
+				//String attrib = attr.name();
 				attIndex.put(attr.name(), nomin.get(attr.name()).indexOf("0"));
 			}
 		}
@@ -256,46 +243,40 @@ public class ChainResponse implements LCTemplateReplayer {
 			violatedForThisTrace = violatedConstraintsPerTraceCh.getItem(caseId);
 		}
 		String previous = lastActivity.getItem(caseId);
+		
 		if(previous!=null && !previous.equals("") && !previous.equals(event)){
 			HashMap<String, Integer> secondElementFul = new  HashMap<String, Integer>();
-			HashMap<String, Integer> secondElementViol = new  HashMap<String, Integer>();
+			//HashMap<String, Integer> secondElementViol = new  HashMap<String, Integer>();
 			if(fulfilledForThisTrace.containsKey(previous)){
 				secondElementFul = fulfilledForThisTrace.get(previous);
 			}
 			if(violatedForThisTrace.containsKey(previous)){
-				secondElementViol = violatedForThisTrace.get(previous);
+				secondElementFul = violatedForThisTrace.get(previous); //veniva caricato nella varabile secondElementViol dichiarata sopra 07/09/17
 			}
 			int nofull = 0;
 			if(secondElementFul.containsKey(event)){
 				nofull = secondElementFul.get(event);
 			}
 			//fulfillment
-			//HF(previous+"%"+event, createInstance(previous+"%"+event, 0), modello);						
 			fulf = true;
 			nr++;
-			currentBucket = nr/bucketWidth;	
-			if(nr>1 && nr<50){
+			
+			if(nr>1){
 				start1 = System.currentTimeMillis();
-				mc = mod.addObservation(previous, event, myAttr, attribute, attIndex, 0, bucketWidth, mc); 
+				mod.addObservation(previous, event, myAttr, attribute, attIndex, 0, bucketWidth); 
 				stop1 = System.currentTimeMillis();
 				time = time+stop1-start1;
 				en++;
 				nr=1;	
 			}
-			//modello.addObservation(, event, currentBucket, bucketWidth, fulf);
 			
 			secondElementFul.put(event, nofull+1);
 			fulfilledForThisTrace.put(previous,secondElementFul);
 			fulfilledConstraintsPerTraceCh.putItem(caseId, fulfilledForThisTrace);
 			//qualcosa non va nelle regole da trovare le violazioni sono tra event e second?
+			
 			for(String second : counter.keySet()){//activityLabelsChResponse){
-//				if(pp==cc)
-//				{
-//					pp=0;
-//					break;
-//				}else{
-//					pp++;
-//				}
+
 				if(!second.equals(event) && !second.equals(previous)){
 					int noviol = 0;
 					HashMap<String, Integer> secondEl = new  HashMap<String, Integer>();
@@ -306,14 +287,12 @@ public class ChainResponse implements LCTemplateReplayer {
 						}
 					}
 					//violation
-					//HF(second+"%"+event, createInstance(second+"%"+event, 1), modello);
 					fulf = false;
 					nr++;
-					currentBucket = nr/bucketWidth;
-					//modello.addObservation( , event, currentBucket, bucketWidth, fulf);
-					if(nr>1 && nr<50){
+
+					if(nr>1){
 						start2 = System.currentTimeMillis();
-						mc = mod.addObservation(second, event, myAttr, attribute, attIndex, 1, bucketWidth, mc);
+						mod.addObservation(second, event, myAttr, attribute, attIndex, 1, bucketWidth);
 						stop2 = System.currentTimeMillis();
 						time = time+stop2-start2;
 						en++;
@@ -341,21 +320,19 @@ public class ChainResponse implements LCTemplateReplayer {
 		lastActivity.putItem(caseId, event);
 		//***********************
 		
+		mod.clean();
 		//System.out.println(en);
 		System.out.println("ChRe:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
-//		printout.println(System.currentTimeMillis()-start);
-//		printout.flush();
-//		printout.close();
 	}
 	
 	@Override
 	public void results(){
-		for(String aEvent : mc.keySet()){ 
-			for(String bEvent : mc.get(aEvent).keySet()){
+		for(String aEvent : mod.mm.keySet()){ 
+			for(String bEvent : mod.mm.get(aEvent).keySet()){
 				printout.println("@@@@@@@@@@@@@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
 //				System.out.println(mc.get(aEvent).get(bEvent).getElement0());
 //				System.out.println(mc.get(aEvent).get(bEvent).getElement1());
-				printout.println(mc.get(aEvent).get(bEvent).getElement1());
+				printout.println(mod.mm.get(aEvent).get(bEvent).getElement1());
 			}
 		}	
 //			System.out.println("AltPrec"+"\t"+fulfill+"\t"+(act-fulfill));

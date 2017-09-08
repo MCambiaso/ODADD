@@ -19,9 +19,6 @@ import org.processmining.operationalsupport.xml.OSXMLConverter;
 
 import Utils.Utils;
 import LossyCounting.LCReplayer;
-import moa.core.*;
-import moa.classifiers.trees.HoeffdingTree;
-import moa.*;
 
 //import 
 /**
@@ -33,7 +30,7 @@ public class Entry {
 	private static HashMap<String, ArrayList<String>> nominal = new HashMap<String, ArrayList<String>>();
 	protected static OSXMLConverter converter = new OSXMLConverter();
 	private static LCReplayer replayer = new LCReplayer();
-	private static int bucketWidth=50;
+	private static int bucketWidth=3;
 
 	public Entry() {
 		// TODO Auto-generated constructor stub
@@ -60,9 +57,11 @@ public class Entry {
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
 		String str = "";
+		long start = System.currentTimeMillis();
+		long start1 = System.currentTimeMillis();
 
 		while ((str = br.readLine()) != null) {
-//			System.out.println(str);
+//			System.out.println(str);			
 
 			XTrace t = (XTrace) converter.fromXML(str);
 			XEvent event = t.get(0);
@@ -72,7 +71,16 @@ public class Entry {
 			int currentBucket = (int)((double)ne / (double)bucketWidth);
 			replayer.addObservation(caseId, currentBucket);
 			replayer.process(event, t, nominal, bucketWidth);
-			System.out.println(ne);
+			if(ne%100==0){
+				System.out.println("Time:\t"+(System.currentTimeMillis()-start));
+				System.out.println(ne);
+				if(ne%1000==0){
+					System.out.println("Time of 1000:\t"+(System.currentTimeMillis()-start1));
+					System.out.println(ne);					
+					start1 = System.currentTimeMillis()/1000;
+				}
+				start = System.currentTimeMillis()/100;
+			}
 		}
 		br.close();
 

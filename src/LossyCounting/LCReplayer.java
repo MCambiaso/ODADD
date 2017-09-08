@@ -9,7 +9,6 @@ import org.deckfour.xes.model.XTrace;
 
 import Constraints.AlternatePrecedence;
 import Constraints.ChainResponse;
-import Constraints.Model;
 import Constraints.AlternateResponse;
 import Constraints.ChainPrecedence;
 import Constraints.Precedence;
@@ -19,7 +18,6 @@ import Constraints.Response;
 public class LCReplayer {
 
 	List<LCTemplateReplayer> replayers = new ArrayList<LCTemplateReplayer>();
-	public static Model model = new Model();
 	
 	public LCReplayer() {
 		replayers.add(new AlternatePrecedence());
@@ -54,12 +52,12 @@ public class LCReplayer {
 	 * @param caseId
 	 */
 	public void process(XEvent event, XTrace tr, HashMap<String, ArrayList<String>> nomin, Integer bucketWidth) {
-//		long start = System.currentTimeMillis();
+		long start = System.currentTimeMillis();
 		for(LCTemplateReplayer t : replayers) {
 			t.process(event, tr, nomin, bucketWidth);
 		}
-//		long stop = System.currentTimeMillis();
-//		System.out.println("Tutte le process:"+(stop-start));
+		long stop = System.currentTimeMillis();
+		//System.out.println("Tutte le process:"+(stop-start));
 	}
 	
 	/**

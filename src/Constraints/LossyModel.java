@@ -2,7 +2,6 @@ package Constraints;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import com.yahoo.labs.samoa.instances.Attribute;
 import com.yahoo.labs.samoa.instances.DenseInstance;
@@ -10,14 +9,12 @@ import com.yahoo.labs.samoa.instances.Instance;
 import com.yahoo.labs.samoa.instances.Instances;
 import com.yahoo.labs.samoa.instances.InstancesHeader;
 
-//import org.apache.commons.lang3.tuple.Pair;
 
 //import edu.uci.ics.jung.graph.util.Pair;
 //import ee.ut.branchminer.Pair;
 //import ee.ut.libs.Pair;
 import Utils.*;
 import moa.classifiers.trees.HoeffdingTree;
-//import moa.recommender.rc.utils.Pair;
 
 public class LossyModel {
 
@@ -28,12 +25,13 @@ public class LossyModel {
 	
 	public HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mm;
 	int observation = 0;
-	int bucket = 50;
+	int bucket;
 	
 	
-	public HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> addObservation(String eventA, String eventB, ArrayList<Attribute> Attr, HashMap<String, Object> attr, HashMap<String, Integer> attInd, int classif, int bucketWidth, HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc){
-		long start = System.currentTimeMillis();
-		mm = mc;
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> addObservation(String eventA, String eventB, ArrayList<Attribute> Attr, HashMap<String, Object> attr, HashMap<String, Integer> attInd, int classif, int bucketWidth){
+		//long start = System.currentTimeMillis();
+		
 		myAttr = Attr;
 		attribute = attr;
 		attIndex = attInd;
@@ -43,37 +41,36 @@ public class LossyModel {
 			
 		if(mm.containsKey(eventA)){
 			if(mm.get(eventA).containsKey(eventB)){
-				HoeffdingTree hhf = new HoeffdingTree();
 				mm.get(eventA).get(eventB).getElement1().trainOnInstance(ins);
 				//System.out.println("Frequenza:\t"+mm.get(eventA).get(eventB).getElement0()+"\t\tNumero di regole associate ad "+eventA+":\t"+mm.get(eventA).size());
 				Pair<Integer, HoeffdingTree> pair = new Pair(mm.get(eventA).get(eventB).getElement0()+1, mm.get(eventA).get(eventB).getElement1());
 				mm.get(eventA).remove(eventB);
 				mm.get(eventA).put(eventB, pair);
 			}else{
-				mm.get(eventA).put(eventB, new Pair(1,  HF(eventA, eventB, ins)));
+				mm.get(eventA).put(eventB, new Pair((int)(observation/bucket)+1,  HF(eventA, eventB, ins)));//non è 1 ma 
 				//mm.get(eventA).get(eventB).createPair(mm.get(eventA).get(eventB).getElement0()+1, HF(eventA, eventB, createInstance(eventA+"%"+eventB, classif)));//controllare se ne mette più di uno
 			}
 		}else{
 			HashMap<String, Pair<Integer, HoeffdingTree>> sec = new  HashMap<String, Pair<Integer, HoeffdingTree>>();
 //			Instance ins = createInstance(eventA+"%"+eventB, classif);
-			Pair<Integer, HoeffdingTree> pair = new Pair(1,  HF(eventA, eventB, ins));			
+			Pair<Integer, HoeffdingTree> pair = new Pair((int)(observation/bucket)+1,  HF(eventA, eventB, ins));			
 			sec.put(eventB, pair);
 			mm.put(eventA, sec);
 		}
 
 		observation ++;	
 		
-		if(observation%bucket==0)
-			clean();
+		//if(observation%bucket==0) //chiamala in fondo ad ogni constraint 
+			//clean();
 		
-		long stop = System.currentTimeMillis();
+		//long stop = System.currentTimeMillis();
 		
 		//System.out.println("Lossy:"+(stop-start));
 		return mm;
 	}
 	
 	public void clean(){
-		long start = System.currentTimeMillis();
+		//long start = System.currentTimeMillis();
 		for(String A: mm.keySet()){
 			ArrayList<String> deleted = new ArrayList<String>();
 			for(String B: mm.get(A).keySet()){
@@ -84,7 +81,7 @@ public class LossyModel {
 			mm.get(A).remove(deleted);
 			//colleziono le b e le rimuovo dopo il for
 		}
-		long stop = System.currentTimeMillis();
+		//long stop = System.currentTimeMillis();
 		//System.out.println("Clean:\t"+(stop-start));
 	}
 	
@@ -213,7 +210,7 @@ public class LossyModel {
 	public void printModell(){}
 		
 	public LossyModel() {
-		// TODO Auto-generated constructor stub
+		mm = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
 	}
 
 }

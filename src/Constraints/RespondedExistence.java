@@ -14,37 +14,24 @@ import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XTrace;
 
 import com.yahoo.labs.samoa.instances.Attribute;
-import com.yahoo.labs.samoa.instances.DenseInstance;
-import com.yahoo.labs.samoa.instances.Instance;
-import com.yahoo.labs.samoa.instances.Instances;
-import com.yahoo.labs.samoa.instances.InstancesHeader;
 
 import moa.classifiers.trees.HoeffdingTree;
 import LossyCounting.LossyCounting;
 import LossyCounting.LCTemplateReplayer;
-import Utils.ComputeKPI;
-//import prompt.onlinedeclare.utils.DeclareModel;
 import Utils.Pair;
 import Utils.Utils;
 
-import com.yahoo.labs.samoa.instances.*;
-
-import moa.classifiers.trees.HoeffdingTree;
-import moa.core.*;
-
-
 public class RespondedExistence implements LCTemplateReplayer {
+	
 	private HashMap<String, ArrayList<HashMap<String, Object>>> snapCollection = new HashMap<String, ArrayList<HashMap<String, Object>>>();
-	private HashMap<String, Instances> instanceForTree = new HashMap<String, Instances>();
 	private HashMap<String, Object> attribute;
-	private HashMap<String, ArrayList<String>> nominal = new HashMap<String, ArrayList<String>>();
 	ArrayList<Attribute> myAttr = new ArrayList<Attribute>(20);
 	ArrayList<Attribute> myAttrTr ;
 	private HashMap<String, Integer> attIndex = new HashMap<String, Integer>();
 	
 	boolean first = true, fulf = true;
-	private Model modello = new Model();
-	private static HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
+	
+	//static HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
 	private LossyModel mod = new LossyModel();
 	int nr = 0, en=0, ff=0, vv=0, cc=10;
 
@@ -91,9 +78,6 @@ public class RespondedExistence implements LCTemplateReplayer {
 
 	@Override
 	public void process(XEvent eve, XTrace tr, HashMap<String, ArrayList<String>> nomin, Integer bucketWidth) {
-//		Model modello = model;
-		int currentBucket , pp=0;
-		//bucketWidth=(int)(1000);
 		long start = System.currentTimeMillis();
 		long start1, start2, start3, start4, start5, stop1, stop2, stop3, stop4, stop5, time=0;
 		//en++;
@@ -102,7 +86,6 @@ public class RespondedExistence implements LCTemplateReplayer {
 
 		attribute = new HashMap<String, Object>();
 		myAttrTr = new ArrayList<Attribute>(100);
-		
 
 		ArrayList<String> classe = new ArrayList<String>(2);
 		classe.add("FULFILLMENT");
@@ -230,7 +213,7 @@ public class RespondedExistence implements LCTemplateReplayer {
 		
 		for(Attribute attr : myAttr){
 			if(!attIndex.containsKey(attr.name()) && !attr.name().equals("class")){
-				String attrib = attr.name();
+				//String attrib = attr.name();
 				attIndex.put(attr.name(), nomin.get(attr.name()).indexOf("0"));
 			}
 		}
@@ -261,36 +244,27 @@ public class RespondedExistence implements LCTemplateReplayer {
 		}
 		if (!counter.containsKey(event)) {
 			if (activityLabelsRespondedExistence.size()>1) {
-				for (String existingEvent : activityLabelsRespondedExistence) {
-//					if(pp==cc)
-//					{
-//						pp=0;
-//						break;
-//					}else{
-//						pp++;
-//					}
+				for (String existingEvent : counter.keySet()){//activityLabelsRespondedExistence) {
 					if (!existingEvent.equals(event)){
 						HashMap<String, Integer> secondElement = new HashMap<String, Integer>();
 						if (pendingForThisTrace.containsKey(existingEvent)) {
 							secondElement = pendingForThisTrace.get(existingEvent);
 						}
-						int numPend =0;
-						if(secondElement.containsKey(event)){
-							numPend = secondElement.get(event);
-						}else{
-							numPend = snapCollection.get(existingEvent).size();
-						}
+//						int numPend =0;
+//						if(secondElement.containsKey(event)){
+//							numPend = secondElement.get(event);
+//						}else{
+//							numPend = snapCollection.get(existingEvent).size();
+//						}
 						
 //						for(int i = 0; i<snapCollection.get(existingEvent).size(); i++){
 						if(snapCollection.get(existingEvent).size()>0){
 							if(existingEvent.contains("a-") && event.contains("b-")) ff++;
 							attribute = snapCollection.get(existingEvent).get(snapCollection.get(existingEvent).size()-1);
-//							createInstance(existingEvent+"-"+event, 0);
-//							HF(existingEvent+"-"+event);
-							//HF(existingEvent+"%"+event, createInstance(existingEvent+"%"+event, 0), modello);			
-							if(nr>1 && nr<50){
+							
+							if(nr>1){
 								start1 = System.currentTimeMillis();
-								mc = mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, bucketWidth, mc); 
+								mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, bucketWidth); 
 								stop1 = System.currentTimeMillis();
 								time = time+stop1-start1;
 								en++;
@@ -298,24 +272,16 @@ public class RespondedExistence implements LCTemplateReplayer {
 							}
 							fulf = true;
 							nr++;
-							currentBucket = nr/bucketWidth;						
-							//modello.addObservation(existingEvent,event, currentBucket, bucketWidth, fulf);
 							snapCollection.get(existingEvent).remove(snapCollection.get(existingEvent).size()-1);							
 						}
 						//fulfillment existingEvent+event
+						if(secondElement!=null){
 						secondElement.put(event, 0);
-						pendingForThisTrace.put(existingEvent,secondElement);
+						pendingForThisTrace.put(existingEvent,secondElement);}
 					}
 
 				}
-				for (String existingEvent : activityLabelsRespondedExistence) {
-//					if(pp==cc)
-//					{
-//						pp=0;
-//						break;
-//					}else{
-//						pp++;
-//					}
+				for (String existingEvent : counter.keySet()){//activityLabelsRespondedExistence) {
 					if (!existingEvent.equals(event)) {
 
 						HashMap<String, Integer> secondElement = new  HashMap<String, Integer>();
@@ -325,39 +291,34 @@ public class RespondedExistence implements LCTemplateReplayer {
 						if(!counter.containsKey(existingEvent)){
 							secondElement.put(existingEvent, 1);
 						}else{
-							int numPend =0;
-							if(secondElement.containsKey(existingEvent)){
-								numPend = secondElement.get(existingEvent);
-							}else{
-								numPend = snapCollection.get(event).size();
-							}
+//							int numPend =0;
+//							if(secondElement.containsKey(existingEvent)){
+//								numPend = secondElement.get(existingEvent);
+//							}else{
+//								numPend = snapCollection.get(event).size();
+//							}
 							
 //							for(int i = 0; i<snapCollection.get(event).size(); i++){	
 							if(snapCollection.get(event).size()>0){
 								if(event.contains("a-") && existingEvent.contains("b-")) ff++;
-								attribute = snapCollection.get(event).get(snapCollection.get(event).size()-1);
-//								createInstance(existingEvent+"-"+event, 0);
-//								HF(existingEvent+"-"+event);
-								//HF(event+"%"+existingEvent, createInstance(event+"%"+existingEvent, 0), modello);						
+								attribute = snapCollection.get(event).get(snapCollection.get(event).size()-1);						
 								fulf = true;
 								nr++;
-								currentBucket = nr/bucketWidth;
-								if(nr>1 && nr<50){
+								
+								if(nr>1){
 									start2 = System.currentTimeMillis();
-									mc = mod.addObservation(event,existingEvent, myAttr, attribute, attIndex, 0, bucketWidth, mc);
+									mod.addObservation(event,existingEvent, myAttr, attribute, attIndex, 0, bucketWidth);
 									stop2 = System.currentTimeMillis();
 									time = time+stop2-start2;
 									en++;
 									nr=1;	
 								}
-								//modello.addObservation(event, existingEvent, currentBucket, bucketWidth, fulf);
 								snapCollection.get(event).remove(snapCollection.get(event).size()-1);					
 							}
 							//fulfillment event+existingEvent
 							secondElement.put(existingEvent, 0);
 						}
 						pendingForThisTrace.put(event,secondElement);
-
 					}
 				}
 				pendingConstraintsPerTraceRe.putItem(caseId, pendingForThisTrace);
@@ -365,41 +326,28 @@ public class RespondedExistence implements LCTemplateReplayer {
 			}
 		} else {
 			for (String firstElement : pendingForThisTrace.keySet()) {
-//				if(pp==cc)
-//				{
-//					pp=0;
-//					break;
-//				}else{
-//					pp++;
-//				}
 				if (!firstElement.equals(event)) {
 					HashMap<String, Integer> secondElement = pendingForThisTrace.get(firstElement);
-					int numPend =0;
-					if(secondElement.containsKey(event)){
-						numPend = secondElement.get(event);
-					}else{
-						numPend = snapCollection.get(firstElement).size();
-					}
+//					int numPend =0;
+//					if(secondElement.containsKey(event)){
+//						numPend = secondElement.get(event);
+//					}else{
+//						numPend = snapCollection.get(firstElement).size();
+//					}
 					
 //					for(int i = 0; i<snapCollection.get(firstElement).size(); i++){		
 						if(snapCollection.get(firstElement).size()>0){
-//							if(firstElement.contains("a-") && event.contains("b-")) ff++;
-						attribute = snapCollection.get(firstElement).get(snapCollection.get(firstElement).size()-1);
-//						createInstance(firstElement+"-"+event, 0);
-//						HF(firstElement+"-"+event);
-						//HF(firstElement+"%"+event, createInstance(firstElement+"%"+event, 0), modello);						
+						attribute = snapCollection.get(firstElement).get(snapCollection.get(firstElement).size()-1);					
 						fulf = true;
 						nr++;
-						currentBucket = nr/bucketWidth;	
-						if(nr>1 && nr<50){
+						if(nr>1){
 							start3 = System.currentTimeMillis();
-							mc = mod.addObservation(firstElement, event, myAttr, attribute, attIndex, 0, bucketWidth, mc);	
+							mod.addObservation(firstElement, event, myAttr, attribute, attIndex, 0, bucketWidth);	
 							stop3 = System.currentTimeMillis();
 							time = time+stop3-start3;
 							en++;
 							nr=1;	
-						}			
-						//modello.addObservation(firstElement, event, currentBucket, bucketWidth, fulf);
+						}
 						snapCollection.get(firstElement).remove(snapCollection.get(firstElement).size()-1);
 					}
 					//fulfillment firstElement+Event
@@ -409,52 +357,43 @@ public class RespondedExistence implements LCTemplateReplayer {
 //					pendingConstraintsPerTraceRe.put(trace, pendingForThisTrace);
 				}
 			}
-
+			
 			HashMap<String, Integer> secondElement = pendingForThisTrace.get(event);
-			for (String second : secondElement.keySet()) {
-//				if(pp==cc)
-//				{
-//					pp=0;
-//					break;
-//				}else{
-//					pp++;
-//				}
-				if (!second.equals(event)) {
-					if (!counter.containsKey(second)) {
-						Integer pendingNo = secondElement.get(second);
-						pendingNo ++;
-						secondElement.put(second, pendingNo);
-					} else {
-						int numPend =0;
-						if(secondElement.containsKey(second)){
-							numPend = secondElement.get(second);
-						}else{
-							numPend = snapCollection.get(event).size();
+			if(secondElement!=null){
+				for (String second : secondElement.keySet()) {
+					if (!second.equals(event)) {
+						if (!counter.containsKey(second)) {
+							Integer pendingNo = secondElement.get(second);
+							pendingNo ++;
+							secondElement.put(second, pendingNo);
+						} else {
+							//int numPend =0;
+							//if(secondElement.containsKey(second)){
+							//numPend = secondElement.get(second);
+							//}else{
+							//numPend = snapCollection.get(event).size();
+							//}
+
+							//for(int i = 0; i<snapCollection.get(event).size(); i++){							
+							if(snapCollection.get(event).size()>0){
+								//							if(event.contains("a-") && second.contains("b-")) ff++;
+								attribute = snapCollection.get(event).get(snapCollection.get(event).size()-1);						
+								fulf = true;
+								nr++;
+								if(nr>1){
+									start4 = System.currentTimeMillis();
+									mod.addObservation(event, second, myAttr, attribute, attIndex, 0, bucketWidth);
+									stop4 = System.currentTimeMillis();
+									time = time+stop4-start4;
+									en++;
+									nr=1;	
+								}					
+								//modello.addObservation(event, second, currentBucket, bucketWidth, fulf);
+								snapCollection.get(event).remove(snapCollection.get(event).size()-1);
+							}
+							//fulfillment event+second
+							secondElement.put(second, 0);
 						}
-						
-//						for(int i = 0; i<snapCollection.get(event).size(); i++){							
-						if(snapCollection.get(event).size()>0){
-//							if(event.contains("a-") && second.contains("b-")) ff++;
-							attribute = snapCollection.get(event).get(snapCollection.get(event).size()-1);
-//							createInstance(firstElement+"-"+event, 0);
-//							HF(firstElement+"-"+event);
-							//HF(event+"%"+second, createInstance(event+"%"+second, 0), modello);						
-							fulf = true;
-							nr++;
-							currentBucket = nr/bucketWidth;	
-							if(nr>1 && nr<50){
-								start4 = System.currentTimeMillis();
-								mc = mod.addObservation(event, second, myAttr, attribute, attIndex, 0, bucketWidth, mc);
-								stop4 = System.currentTimeMillis();
-								time = time+stop4-start4;
-								en++;
-								nr=1;	
-							}					
-							//modello.addObservation(event, second, currentBucket, bucketWidth, fulf);
-							snapCollection.get(event).remove(snapCollection.get(event).size()-1);
-						}
-						//fulfillment event+second
-						secondElement.put(second, 0);
 					}
 				}
 			}
@@ -480,33 +419,22 @@ public class RespondedExistence implements LCTemplateReplayer {
 		if(Utils.isTraceComplete(eve)){
 			for (String firstElement : pendingForThisTrace.keySet()) {
 				for (String secondElement : pendingForThisTrace.get(firstElement).keySet()) {
-//					if(pp==cc)
-//					{
-//						pp=0;
-//						break;
-//					}else{
-//						pp++;
-//					}
 //					if(!pendingForThisTrace.get(firstElement).get(secondElement).equals(0)){
-						int numPend = pendingForThisTrace.get(firstElement).size();
+//						int numPend = pendingForThisTrace.get(firstElement).size();
 //						for(int i = 0; i<=numPend; i++){
 							if(snapCollection.get(firstElement).size()>0){
 							attribute = snapCollection.get(firstElement).get(snapCollection.get(firstElement).size()-1);
-//							createInstance(firstElement+"-"+secondElement, 1);
-//							HF(firstElement+"-"+secondElement);
-							//HF(firstElement+"%"+secondElement, createInstance(firstElement+"%"+secondElement, 1), modello);
 							fulf = false;
 							nr++;
-							currentBucket = nr/bucketWidth;
-							if(nr>1 && nr<50){
+							
+							if(nr>1){
 								start5 = System.currentTimeMillis();
-								mc = mod.addObservation(firstElement, secondElement, myAttr, attribute, attIndex, 1, bucketWidth, mc);
+								mod.addObservation(firstElement, secondElement, myAttr, attribute, attIndex, 1, bucketWidth);
 								stop5 = System.currentTimeMillis();
 								time = time+stop5-start5;
 								en++;
 								nr=1;	
 							}
-							//modello.addObservation(firstElement, secondElement, currentBucket, bucketWidth, fulf);
 							snapCollection.get(firstElement).remove(snapCollection.get(firstElement).size()-1);	
 							}
 //						}
@@ -514,22 +442,19 @@ public class RespondedExistence implements LCTemplateReplayer {
 				}
 			}
 		}
-		
+		mod.clean();
 		//System.out.println(en);
-		//System.out.println("ReEx:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
-//		printout.println(System.currentTimeMillis()-start);
-//		printout.flush();
-//		printout.close();
+		System.out.println("ReEx:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
 	}
 	
 	@Override
 	public void results(){
-		for(String aEvent : mc.keySet()){ 
-			for(String bEvent : mc.get(aEvent).keySet()){
+		for(String aEvent : mod.mm.keySet()){ 
+			for(String bEvent : mod.mm.get(aEvent).keySet()){
 				printout.println("@@@@@@@@@@@@@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
 //				System.out.println(mc.get(aEvent).get(bEvent).getElement0());
 //				System.out.println(mc.get(aEvent).get(bEvent).getElement1());
-				printout.println(mc.get(aEvent).get(bEvent).getElement1());
+				printout.println(mod.mm.get(aEvent).get(bEvent).getElement1());
 			}
 		}	
 //			System.out.println("AltPrec"+"\t"+fulfill+"\t"+(act-fulfill));
