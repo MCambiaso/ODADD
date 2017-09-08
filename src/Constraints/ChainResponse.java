@@ -322,7 +322,7 @@ public class ChainResponse implements LCTemplateReplayer {
 		
 		mod.clean();
 		//System.out.println(en);
-		System.out.println("ChRe:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
+		//System.out.println("ChRe:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
 	}
 	
 	@Override

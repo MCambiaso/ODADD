@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import org.deckfour.xes.model.XAttribute;
 import org.deckfour.xes.model.XEvent;
@@ -24,7 +25,9 @@ import com.yahoo.labs.samoa.instances.*;
 public class AlternateResponse implements LCTemplateReplayer {
 	
 	private HashMap<String, ArrayList<HashMap<String, Object>>> snapCollection = new HashMap<String, ArrayList<HashMap<String, Object>>>();
+	
 	private HashMap<String, Object> attribute;
+	private HashMap<String, LinkedList<HashMap<String, Object>>> snap = new HashMap<String, LinkedList<HashMap<String, Object>>>();
 	ArrayList<Attribute> myAttr = new ArrayList<Attribute>(20);
 	ArrayList<Attribute> myAttrTr ;
 	private HashMap<String, Integer> attIndex = new HashMap<String, Integer>();
@@ -234,6 +237,14 @@ public class AlternateResponse implements LCTemplateReplayer {
 			snapCollection.put(event, firstSnap);
 		}
 		
+		if(snap.containsKey(event)){
+			snap.get(event).add(attribute);
+		}else{
+			LinkedList<HashMap<String, Object>> firstSnap = new LinkedList<HashMap<String, Object>>();
+			firstSnap.add(attribute);
+			snap.put(event, firstSnap);
+		}
+		
 		HashMap<String, Integer> counter = new HashMap<String, Integer>();
 		if(!activityLabelsCounterAltResponse.containsKey(trace)){
 			activityLabelsCounterAltResponse.putItem(trace, counter);
@@ -279,8 +290,10 @@ public class AlternateResponse implements LCTemplateReplayer {
 //							}else{
 //								numPend = snapCollection.get(existingEvent).size();
 //							}
-							if(!snapCollection.get(existingEvent).isEmpty()){
-								attribute = snapCollection.get(existingEvent).get(snapCollection.get(existingEvent).size()-1);
+//							if(!snapCollection.get(existingEvent).isEmpty()){
+//								attribute = snapCollection.get(existingEvent).get(snapCollection.get(existingEvent).size()-1);
+							if(!snap.get(existingEvent).isEmpty()){
+								attribute = snap.get(existingEvent).getLast();
 								fulf = true;
 								nr++;
 								
@@ -292,15 +305,17 @@ public class AlternateResponse implements LCTemplateReplayer {
 									en++;
 									nr=1;
 								}
-								snapCollection.get(existingEvent).remove(snapCollection.get(existingEvent).size()-1);			
+								//snapCollection.get(existingEvent).remove(snapCollection.get(existingEvent).size()-1);		
+								if(snap.get(existingEvent).size()>10)
+									snap.get(existingEvent).removeFirst();
 							}
 							//fulfillment solo per l'ultima attivazione
 							secondEl.put(event, pend-1);
 							violatedForThisTrace.put(existingEvent, secondEl);
 							violatedConstraintsPerTrace.putItem(trace, violatedForThisTrace);
 						}
-						if(pend==1 && snapCollection.get(existingEvent).size()>0){
-							attribute = snapCollection.get(existingEvent).get(0);						
+						if(pend==1 && snap.get(existingEvent).size()>0){ //snapCollection.get(existingEvent).size()>0){
+							attribute = snap.get(existingEvent).removeFirst();//snapCollection.get(existingEvent).get(0);						
 							fulf = true;
 							nr++;
 							
@@ -331,7 +346,7 @@ public class AlternateResponse implements LCTemplateReplayer {
 						if(secondElement.containsKey(existingEvent)){
 							int pend = secondElement.get(existingEvent);
 							if(pend==1){
-								attribute = snapCollection.get(existingEvent).get(pend-1);					
+								attribute = snap.get(existingEvent).getLast();//snapCollection.get(existingEvent).get(pend-1);					
 								fulf = false;
 								nr++;			
 								if(nr>1){
@@ -371,8 +386,8 @@ public class AlternateResponse implements LCTemplateReplayer {
 							totviol = secondEl.get(event);
 						}
 						
-						if(snapCollection.get(firstElement).size()>0){
-							attribute = snapCollection.get(firstElement).get(snapCollection.get(firstElement).size()-1);						
+						if(snap.get(firstElement).size()>1){//snapCollection.get(firstElement).size()>1){
+							attribute = snap.get(firstElement).getFirst();//snapCollection.get(firstElement).get(snapCollection.get(firstElement).size()-1);						
 							fulf = true;
 							nr++;	
 							if(nr>1){
@@ -403,7 +418,7 @@ public class AlternateResponse implements LCTemplateReplayer {
 					if(secondElement.containsKey(second)){
 						pendingNo = secondElement.get(second);	
 						pendingNo ++;
-						attribute = snapCollection.get(event).get(snapCollection.get(event).size()-1);			
+						attribute = snap.get(event).getLast();//snapCollection.get(event).get(snapCollection.get(event).size()-1);			
 						fulf = false;
 						nr++;	
 						if(nr>1){
@@ -440,7 +455,7 @@ public class AlternateResponse implements LCTemplateReplayer {
 		activityLabelsCounterAltResponse.putItem(trace, counter);
 		//***********************
 		mod.clean();
-		System.out.println("AltRe:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
+		//System.out.println("AltRe:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
 	}
 
 	@Override

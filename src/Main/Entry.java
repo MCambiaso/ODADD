@@ -30,7 +30,7 @@ public class Entry {
 	private static HashMap<String, ArrayList<String>> nominal = new HashMap<String, ArrayList<String>>();
 	protected static OSXMLConverter converter = new OSXMLConverter();
 	private static LCReplayer replayer = new LCReplayer();
-	private static int bucketWidth=3;
+	private static int bucketWidth=10;
 
 	public Entry() {
 		// TODO Auto-generated constructor stub
@@ -72,14 +72,14 @@ public class Entry {
 			replayer.addObservation(caseId, currentBucket);
 			replayer.process(event, t, nominal, bucketWidth);
 			if(ne%100==0){
-				System.out.println("Time:\t"+(System.currentTimeMillis()-start));
+				System.out.println("Time:\t"+((System.currentTimeMillis()-start)/100));
 				System.out.println(ne);
 				if(ne%1000==0){
-					System.out.println("Time of 1000:\t"+(System.currentTimeMillis()-start1));
+					System.out.println("Time of 1000:\t"+((System.currentTimeMillis()-start1)/1000));
 					System.out.println(ne);					
-					start1 = System.currentTimeMillis()/1000;
+					start1 = System.currentTimeMillis();
 				}
-				start = System.currentTimeMillis()/100;
+				start = System.currentTimeMillis();
 			}
 		}
 		br.close();

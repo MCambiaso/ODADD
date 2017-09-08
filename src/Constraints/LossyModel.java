@@ -71,16 +71,24 @@ public class LossyModel {
 	
 	public void clean(){
 		//long start = System.currentTimeMillis();
+		int canc=0, tot=0; 
 		for(String A: mm.keySet()){
 			ArrayList<String> deleted = new ArrayList<String>();
 			for(String B: mm.get(A).keySet()){
-				if(mm.get(A).get(B).getElement0()<=(observation/bucket))
+				if(mm.get(A).get(B).getElement0()<=(observation/bucket)){
 					deleted.add(B);
-					//mm.get(A).remove(B);//if sulla dimensione di A   colleziono le b e le rimuovo dopo il for
+					//mm.get(A).remove(B);//if sulla dimensione di A   colleziono le b e le rimuovo dopo il for			
+				canc++;
+				}
+				
+				tot++;
 			}
-			mm.get(A).remove(deleted);
+			
+			for(String ev: deleted)
+				mm.get(A).remove(ev);
 			//colleziono le b e le rimuovo dopo il for
 		}
+		System.out.println("Tot:\t"+tot+"\tAfter:\t"+(tot-canc));
 		//long stop = System.currentTimeMillis();
 		//System.out.println("Clean:\t"+(stop-start));
 	}

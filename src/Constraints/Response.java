@@ -233,6 +233,7 @@ public class Response implements LCTemplateReplayer {
 		}
 		
 		activityLabelsResponse.add(event);
+		
 		HashMap<String, Integer> counter = new HashMap<String, Integer>();// numero di volte che è stato visto quell'evento nella traccia
 		if (!activityLabelsCounterResponse.containsKey(caseId)) {
 			activityLabelsCounterResponse.putItem(caseId, counter);
@@ -256,7 +257,7 @@ public class Response implements LCTemplateReplayer {
 		
 		if (!counter.containsKey(event)) {
 			if (activityLabelsResponse.size() > 1) {
-				for (String existingEvent : counter.keySet()){//activityLabelsResponse) {
+				for (String existingEvent : activityLabelsResponse) {//counter.keySet()){
 					if (!existingEvent.equals(event)) {
 						HashMap<String, Integer> secondElement = new HashMap<String, Integer>();
 						if (pendingForThisTrace.containsKey(existingEvent)) {

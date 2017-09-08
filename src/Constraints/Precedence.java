@@ -328,7 +328,7 @@ public class Precedence implements LCTemplateReplayer {
 		//*********************** Hoeffding tree **************************
 		mod.clean();
 		//System.out.println(en);
-		System.out.println("Pr:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
+		//System.out.println("Pr:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
 	}
 	
 	@Override

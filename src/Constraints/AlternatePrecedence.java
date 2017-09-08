@@ -391,7 +391,7 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 		
 		mod.clean();
 		//System.out.println(en);
-		System.out.println("AltPr:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
+		//System.out.println("AltPr:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
 	}
 	
 	@Override
