@@ -37,7 +37,8 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 	private LossyModel mod = new LossyModel();
 	int nr = 0, en=0, cc=10;
 
-	private HashSet<String> activityLabelsAltPrecedence = new HashSet<String>();
+	//private HashSet<String> activityLabelsAltPrecedence = new HashSet<String>();
+	private LinkedList<String> activityLabelsAltPrecedence = new LinkedList<String>();
 	private LossyCounting<HashMap<String, Integer>> activityLabelsCounterAltPrecedence = new LossyCounting<HashMap<String, Integer>>();
 	private LossyCounting<HashMap<String, HashMap<String, Integer>>> fulfilledConstraintsPerTraceAlt = new LossyCounting<HashMap<String, HashMap<String, Integer>>>();
 	private LossyCounting<HashMap<String, HashMap<String, Integer>>> satisfactionsConstraintsPerTrace = new LossyCounting<HashMap<String, HashMap<String, Integer>>>();
@@ -262,8 +263,8 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 		}else{
 			isDuplicatedForThisTrace = isDuplicatedActivationPerTrace.getItem(caseId);
 		}
-		if(list.size()>1){//activityLabelsAltPrecedence.size()>1){
-			for(String existingEvent : list){//activityLabelsAltPrecedence){
+		if(activityLabelsAltPrecedence.size()>1){//list.size()>1){//
+			for(String existingEvent : activityLabelsAltPrecedence){// list){//
 				if(!existingEvent.equals(event)){
 					boolean violated = false;
 					if(isDuplicatedForThisTrace.containsKey(event)){
@@ -381,6 +382,9 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 			fulfilledConstraintsPerTraceAlt.remove(caseId);
 			eventList.remove(caseId);
 		}
+		
+		if(activityLabelsAltPrecedence.size()>10)
+			activityLabelsAltPrecedence.removeFirst();
 		
 		if(list.size()==10)
 			list.removeFirst();

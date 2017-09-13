@@ -1,7 +1,7 @@
 package Constraints;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
+import java.util.Map.Entry;
 
 import com.yahoo.labs.samoa.instances.Attribute;
 import com.yahoo.labs.samoa.instances.DenseInstance;
@@ -71,24 +71,30 @@ public class LossyModel {
 	
 	public void clean(){
 		//long start = System.currentTimeMillis();
-		int canc=0, tot=0; 
+		//int canc=0, tot=0, size=0; 
+		//Iterator<HashMap<String, Pair<Integer, HoeffdingTree>>> it = 
 		for(String A: mm.keySet()){
-			ArrayList<String> deleted = new ArrayList<String>();
-			for(String B: mm.get(A).keySet()){
-				if(mm.get(A).get(B).getElement0()<=(observation/bucket)){
-					deleted.add(B);
+			//size =  mm.get(A).size();
+			//ArrayList<String> deleted = new ArrayList<String>();
+			for(Iterator<Entry<String, Pair<Integer, HoeffdingTree>>> it = mm.get(A).entrySet().iterator(); it.hasNext();){
+				if(it.next().getValue().getElement0()<=(observation/bucket)){//mm.get(A).get(B).getElement0()<=(observation/bucket)){
+					it.remove();
+					//deleted.add(B);
 					//mm.get(A).remove(B);//if sulla dimensione di A   colleziono le b e le rimuovo dopo il for			
-				canc++;
+				//canc++;
 				}
 				
-				tot++;
+				//tot++;
 			}
-			
-			for(String ev: deleted)
-				mm.get(A).remove(ev);
+			//canc=mm.get(A).size();
+//			for(String ev: deleted)
+//				mm.get(A).remove(ev);
 			//colleziono le b e le rimuovo dopo il for
+			//if(size>4)
+				//System.out.println(size+"-"+canc+"="+(size-canc));
 		}
-		System.out.println("Tot:\t"+tot+"\tAfter:\t"+(tot-canc));
+		
+		//System.out.println("Tot:\t"+tot+"\tAfter:\t"+(tot-canc));
 		//long stop = System.currentTimeMillis();
 		//System.out.println("Clean:\t"+(stop-start));
 	}

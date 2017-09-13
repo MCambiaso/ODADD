@@ -24,7 +24,7 @@ import com.yahoo.labs.samoa.instances.*;
 
 public class AlternateResponse implements LCTemplateReplayer {
 	
-	private HashMap<String, ArrayList<HashMap<String, Object>>> snapCollection = new HashMap<String, ArrayList<HashMap<String, Object>>>();
+	private HashMap<String, LinkedList<HashMap<String, Object>>> snapCollection = new HashMap<String, LinkedList<HashMap<String, Object>>>();
 	
 	private HashMap<String, Object> attribute;
 	private HashMap<String, LinkedList<HashMap<String, Object>>> snap = new HashMap<String, LinkedList<HashMap<String, Object>>>();
@@ -38,7 +38,8 @@ public class AlternateResponse implements LCTemplateReplayer {
 	
 	int nr = 0, en=0, cc=10;
 
-	private HashSet<String> activityLabelsAltResponse = new HashSet<String>();
+//	private HashSet<String> activityLabelsAltResponse = new HashSet<String>();
+	private LinkedList<String> activityLabelsAltResponse = new LinkedList<String>();
 	private LossyCounting<HashMap<String, Integer>> activityLabelsCounterAltResponse = new LossyCounting<HashMap<String, Integer>>();
 	private LossyCounting<HashMap<String, HashMap<String, Integer>>> pendingConstraintsPerTraceAlt = new LossyCounting<HashMap<String, HashMap<String, Integer>>>();
 	private LossyCounting<HashMap<String, HashMap<String, Integer>>> violatedConstraintsPerTrace = new LossyCounting<HashMap<String, HashMap<String, Integer>>>();
@@ -231,18 +232,23 @@ public class AlternateResponse implements LCTemplateReplayer {
 		
 		if(snapCollection.containsKey(event)){
 			snapCollection.get(event).add(attribute);
+			if(snapCollection.get(event).size()>5)
+				snapCollection.get(event).removeFirst();
 		}else{
-			ArrayList<HashMap<String, Object>> firstSnap = new ArrayList<HashMap<String, Object>>();
+			LinkedList<HashMap<String, Object>> firstSnap = new LinkedList<HashMap<String, Object>>();
 			firstSnap.add(attribute);
 			snapCollection.put(event, firstSnap);
 		}
 		
 		if(snap.containsKey(event)){
 			snap.get(event).add(attribute);
+
+			if(snap.get(event).size()>10)
+				snap.get(event).removeFirst();
 		}else{
 			LinkedList<HashMap<String, Object>> firstSnap = new LinkedList<HashMap<String, Object>>();
 			firstSnap.add(attribute);
-			snap.put(event, firstSnap);
+			snap.put(event, firstSnap);			
 		}
 		
 		HashMap<String, Integer> counter = new HashMap<String, Integer>();
@@ -267,7 +273,7 @@ public class AlternateResponse implements LCTemplateReplayer {
 
 		if(!counter.containsKey(event)){
 			if(activityLabelsAltResponse.size()>1){	
-				for(String existingEvent : counter.keySet()){//activityLabelsAltResponse){
+				for(String existingEvent : activityLabelsAltResponse){
 					if(!existingEvent.equals(event)){
 						int pend = 0;
 						if(activityLabelsCounterAltResponse.containsKey(trace)){
@@ -315,7 +321,7 @@ public class AlternateResponse implements LCTemplateReplayer {
 							violatedConstraintsPerTrace.putItem(trace, violatedForThisTrace);
 						}
 						if(pend==1 && snap.get(existingEvent).size()>0){ //snapCollection.get(existingEvent).size()>0){
-							attribute = snap.get(existingEvent).removeFirst();//snapCollection.get(existingEvent).get(0);						
+							attribute = snap.get(existingEvent).getFirst();//snapCollection.get(existingEvent).get(0);						
 							fulf = true;
 							nr++;
 							
@@ -337,7 +343,7 @@ public class AlternateResponse implements LCTemplateReplayer {
 					}
 				}
 				
-				for(String existingEvent : counter.keySet()){//activityLabelsAltResponse){
+				for(String existingEvent : activityLabelsAltResponse){
 					if(!existingEvent.equals(event)){
 						HashMap<String, Integer> secondElement = new  HashMap<String, Integer>();
 						if(pendingForThisTrace.containsKey(event)){
@@ -368,7 +374,7 @@ public class AlternateResponse implements LCTemplateReplayer {
 			}
 		}else{
 
-			for(String firstElement : counter.keySet()){//activityLabelsAltResponse){
+			for(String firstElement : activityLabelsAltResponse){
 				if(!firstElement.equals(event)){
 					HashMap<String, Integer> secondEl = new  HashMap<String, Integer>();
 					if(violatedForThisTrace.containsKey(firstElement)){
@@ -412,7 +418,7 @@ public class AlternateResponse implements LCTemplateReplayer {
 			}
 			
 			HashMap<String, Integer> secondElement = pendingForThisTrace.get(event);
-			for(String second : counter.keySet()){//activityLabelsAltResponse){
+			for(String second : activityLabelsAltResponse){
 				if(!second.equals(event) && secondElement!=null){
 					Integer pendingNo = 1;
 					if(secondElement.containsKey(second)){
@@ -454,6 +460,8 @@ public class AlternateResponse implements LCTemplateReplayer {
 		}
 		activityLabelsCounterAltResponse.putItem(trace, counter);
 		//***********************
+		if(activityLabelsAltResponse.size()>10)
+			activityLabelsAltResponse.removeFirst();
 		mod.clean();
 		//System.out.println("AltRe:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
 	}

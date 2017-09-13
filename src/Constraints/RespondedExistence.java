@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import org.deckfour.xes.model.XAttribute;
 import org.deckfour.xes.model.XEvent;
@@ -23,7 +24,7 @@ import Utils.Utils;
 
 public class RespondedExistence implements LCTemplateReplayer {
 	
-	private HashMap<String, ArrayList<HashMap<String, Object>>> snapCollection = new HashMap<String, ArrayList<HashMap<String, Object>>>();
+	private HashMap<String, LinkedList<HashMap<String, Object>>> snapCollection = new HashMap<String, LinkedList<HashMap<String, Object>>>();
 	private HashMap<String, Object> attribute;
 	ArrayList<Attribute> myAttr = new ArrayList<Attribute>(20);
 	ArrayList<Attribute> myAttrTr ;
@@ -35,7 +36,8 @@ public class RespondedExistence implements LCTemplateReplayer {
 	private LossyModel mod = new LossyModel();
 	int nr = 0, en=0, ff=0, vv=0, cc=10;
 
-	private HashSet<String> activityLabelsRespondedExistence = new HashSet<String>();
+//	private HashSet<String> activityLabelsRespondedExistence = new HashSet<String>();
+	private LinkedList<String> activityLabelsRespondedExistence = new LinkedList<String>();
 	private LossyCounting<HashMap<String, Integer>> activityLabelsCounterRespondedExistence = new LossyCounting<HashMap<String, Integer>>();
 	private LossyCounting<HashMap<String, HashMap<String, Integer>>> pendingConstraintsPerTraceRe = new LossyCounting<HashMap<String, HashMap<String, Integer>>>();
 	
@@ -224,8 +226,10 @@ public class RespondedExistence implements LCTemplateReplayer {
 		
 		if(snapCollection.containsKey(event)){
 			snapCollection.get(event).add(attribute);
+			if(snapCollection.get(event).size()>5)
+				snapCollection.get(event).removeFirst();
 		}else{
-			ArrayList<HashMap<String, Object>> firstSnap = new ArrayList<HashMap<String, Object>>();
+			LinkedList<HashMap<String, Object>> firstSnap = new LinkedList<HashMap<String, Object>>();
 			firstSnap.add(attribute);
 			snapCollection.put(event, firstSnap);
 		}
@@ -244,7 +248,7 @@ public class RespondedExistence implements LCTemplateReplayer {
 		}
 		if (!counter.containsKey(event)) {
 			if (activityLabelsRespondedExistence.size()>1) {
-				for (String existingEvent : counter.keySet()){//activityLabelsRespondedExistence) {
+				for (String existingEvent : activityLabelsRespondedExistence) {
 					if (!existingEvent.equals(event)){
 						HashMap<String, Integer> secondElement = new HashMap<String, Integer>();
 						if (pendingForThisTrace.containsKey(existingEvent)) {
@@ -259,8 +263,8 @@ public class RespondedExistence implements LCTemplateReplayer {
 						
 //						for(int i = 0; i<snapCollection.get(existingEvent).size(); i++){
 						if(snapCollection.get(existingEvent).size()>0){
-							if(existingEvent.contains("a-") && event.contains("b-")) ff++;
-							attribute = snapCollection.get(existingEvent).get(snapCollection.get(existingEvent).size()-1);
+							//if(existingEvent.contains("a-") && event.contains("b-")) ff++;
+							attribute = snapCollection.get(existingEvent).getLast();//.get(snapCollection.get(existingEvent).size()-1);
 							
 							if(nr>1){
 								start1 = System.currentTimeMillis();
@@ -272,7 +276,7 @@ public class RespondedExistence implements LCTemplateReplayer {
 							}
 							fulf = true;
 							nr++;
-							snapCollection.get(existingEvent).remove(snapCollection.get(existingEvent).size()-1);							
+							snapCollection.get(existingEvent).removeLast();//.remove(snapCollection.get(existingEvent).size()-1);							
 						}
 						//fulfillment existingEvent+event
 						if(secondElement!=null){
@@ -281,7 +285,7 @@ public class RespondedExistence implements LCTemplateReplayer {
 					}
 
 				}
-				for (String existingEvent : counter.keySet()){//activityLabelsRespondedExistence) {
+				for (String existingEvent : activityLabelsRespondedExistence) {
 					if (!existingEvent.equals(event)) {
 
 						HashMap<String, Integer> secondElement = new  HashMap<String, Integer>();
@@ -301,7 +305,7 @@ public class RespondedExistence implements LCTemplateReplayer {
 //							for(int i = 0; i<snapCollection.get(event).size(); i++){	
 							if(snapCollection.get(event).size()>0){
 								if(event.contains("a-") && existingEvent.contains("b-")) ff++;
-								attribute = snapCollection.get(event).get(snapCollection.get(event).size()-1);						
+								attribute = snapCollection.get(event).getLast();//.get(snapCollection.get(event).size()-1);						
 								fulf = true;
 								nr++;
 								
@@ -313,7 +317,7 @@ public class RespondedExistence implements LCTemplateReplayer {
 									en++;
 									nr=1;	
 								}
-								snapCollection.get(event).remove(snapCollection.get(event).size()-1);					
+								snapCollection.get(event).removeLast();//.remove(snapCollection.get(event).size()-1);					
 							}
 							//fulfillment event+existingEvent
 							secondElement.put(existingEvent, 0);
@@ -336,8 +340,8 @@ public class RespondedExistence implements LCTemplateReplayer {
 //					}
 					
 //					for(int i = 0; i<snapCollection.get(firstElement).size(); i++){		
-						if(snapCollection.get(firstElement).size()>0){
-						attribute = snapCollection.get(firstElement).get(snapCollection.get(firstElement).size()-1);					
+					if(snapCollection.get(firstElement).size()>0){
+						attribute = snapCollection.get(firstElement).getLast();//.get(snapCollection.get(firstElement).size()-1);					
 						fulf = true;
 						nr++;
 						if(nr>1){
@@ -348,7 +352,7 @@ public class RespondedExistence implements LCTemplateReplayer {
 							en++;
 							nr=1;	
 						}
-						snapCollection.get(firstElement).remove(snapCollection.get(firstElement).size()-1);
+						snapCollection.get(firstElement).removeLast();//.remove(snapCollection.get(firstElement).size()-1);
 					}
 					//fulfillment firstElement+Event
 					secondElement.put(event, 0);
@@ -377,7 +381,7 @@ public class RespondedExistence implements LCTemplateReplayer {
 							//for(int i = 0; i<snapCollection.get(event).size(); i++){							
 							if(snapCollection.get(event).size()>0){
 								//							if(event.contains("a-") && second.contains("b-")) ff++;
-								attribute = snapCollection.get(event).get(snapCollection.get(event).size()-1);						
+								attribute = snapCollection.get(event).getLast();//.get(snapCollection.get(event).size()-1);						
 								fulf = true;
 								nr++;
 								if(nr>1){
@@ -389,7 +393,7 @@ public class RespondedExistence implements LCTemplateReplayer {
 									nr=1;	
 								}					
 								//modello.addObservation(event, second, currentBucket, bucketWidth, fulf);
-								snapCollection.get(event).remove(snapCollection.get(event).size()-1);
+								snapCollection.get(event).removeLast();//.remove(snapCollection.get(event).size()-1);
 							}
 							//fulfillment event+second
 							secondElement.put(second, 0);
@@ -423,7 +427,7 @@ public class RespondedExistence implements LCTemplateReplayer {
 //						int numPend = pendingForThisTrace.get(firstElement).size();
 //						for(int i = 0; i<=numPend; i++){
 							if(snapCollection.get(firstElement).size()>0){
-							attribute = snapCollection.get(firstElement).get(snapCollection.get(firstElement).size()-1);
+							attribute = snapCollection.get(firstElement).getLast();//.get(snapCollection.get(firstElement).size()-1);
 							fulf = false;
 							nr++;
 							
@@ -435,16 +439,20 @@ public class RespondedExistence implements LCTemplateReplayer {
 								en++;
 								nr=1;	
 							}
-							snapCollection.get(firstElement).remove(snapCollection.get(firstElement).size()-1);	
+							snapCollection.get(firstElement).removeLast();//.remove(snapCollection.get(firstElement).size()-1);	
 							}
 //						}
 //					}						
 				}
 			}
 		}
+		
+		if(activityLabelsRespondedExistence.size()>10)
+			activityLabelsRespondedExistence.removeFirst();
+		
 		mod.clean();
 		//System.out.println(en);
-		System.out.println("ReEx:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
+		//System.out.println("ReEx:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
 	}
 	
 	@Override

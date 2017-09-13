@@ -36,7 +36,8 @@ public class ChainPrecedence implements LCTemplateReplayer {
 	private LossyModel mod = new LossyModel();
 	int nr = 0, en=0, cc=10;
 	
-	private HashSet<String> activityLabelsChPrecedence = new HashSet<String>();
+//	private HashSet<String> activityLabelsChPrecedence = new HashSet<String>();
+	private LinkedList<String> activityLabelsChPrecedence = new LinkedList<String>();
 	private LossyCounting<HashMap<String,Integer>> activityLabelsCounterChPrecedence = new LossyCounting<HashMap<String, Integer>>();
 	private LossyCounting<HashMap<String, HashMap<String, Integer>>> fulfilledConstraintsPerTraceChPrecedence = new LossyCounting<HashMap<String, HashMap<String, Integer>>>();
 	private LossyCounting<HashMap<String, HashMap<String, Integer>>> violatedConstraintsPerTraceChPrecedence = new LossyCounting<HashMap<String, HashMap<String, Integer>>>();
@@ -281,7 +282,7 @@ public class ChainPrecedence implements LCTemplateReplayer {
 			fulfilledForThisTrace.put(previousChPrecedence,secondElementFul);
 			fulfilledConstraintsPerTraceChPrecedence.putItem(caseId, fulfilledForThisTrace);
 			
-			for(String first : list){//activityLabelsChPrecedence){				
+			for(String first : activityLabelsChPrecedence){				
 				if(!first.equals(event) && !first.equals(previousChPrecedence)){
 					//violatedConstraintsPerTraceCh
 					int noviol = 0;
@@ -332,6 +333,9 @@ public class ChainPrecedence implements LCTemplateReplayer {
 			activityLabelsCounterChPrecedence.remove(caseId);
 			eventList.remove(caseId);
 		}
+		
+		if(activityLabelsChPrecedence.size()>10)
+			activityLabelsChPrecedence.removeFirst();
 		
 		if(list.size()==10)
 			list.removeFirst();

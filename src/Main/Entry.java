@@ -45,10 +45,11 @@ public class Entry {
 	}
 	
 	public static void Run() throws IOException {
+		long start2 = System.currentTimeMillis();
 		int ne=0;
 		//Socket s = new Socket(address, port);
 
-		InputStream in = new FileInputStream(new File("/home/matte/Scaricati/logTest3"));////home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/Log/logTest2------------hospitalStream logTest2 CompleteHospital Experiments/40x20x5000
+		InputStream in = new FileInputStream(new File("/home/matte/Scaricati/CompleteHospital"));////home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/Log/logTest2------------logTest3 hospitalStream logTest2 CompleteHospital Experiments/40x20x5000
 
 //		status.setText("Miner started. Collecting events...");
 //		status.setIcon(UIColors.loadingIcon);
@@ -76,10 +77,16 @@ public class Entry {
 				System.out.println(ne);
 				if(ne%1000==0){
 					System.out.println("Time of 1000:\t"+((System.currentTimeMillis()-start1)/1000));
+					System.out.println("Total time:\t"+start2);
 					System.out.println(ne);					
 					start1 = System.currentTimeMillis();
 				}
 				start = System.currentTimeMillis();
+			}
+			
+			// events cleanup
+			if (ne % bucketWidth == 0) {
+				replayer.cleanup(currentBucket);
 			}
 		}
 		br.close();
@@ -91,7 +98,7 @@ public class Entry {
 	
 	public static void AttributeValue(){
 		try {
-			InputStream in = new FileInputStream(new File("/home/matte/Scaricati/logTest3"));//Scrivania/3activitiesResponse logTest3CompleteHospital
+			InputStream in = new FileInputStream(new File("/home/matte/Scaricati/CompleteHospital"));//Scrivania/3activitiesResponse logTest3CompleteHospital
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			int i=0;
 			String str = "";

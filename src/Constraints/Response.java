@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import org.deckfour.xes.model.XAttribute;
 import org.deckfour.xes.model.XEvent;
@@ -25,7 +26,7 @@ import com.yahoo.labs.samoa.instances.*;
 
 public class Response implements LCTemplateReplayer {
 	
-	private HashMap<String, ArrayList<HashMap<String, Object>>> snapCollection = new HashMap<String, ArrayList<HashMap<String, Object>>>();
+	private HashMap<String, LinkedList<HashMap<String, Object>>> snapCollection = new HashMap<String, LinkedList<HashMap<String, Object>>>();
 
 	private HashMap<String, Object> attribute;
 	ArrayList<Attribute> myAttr = new ArrayList<Attribute>(20);
@@ -38,7 +39,8 @@ public class Response implements LCTemplateReplayer {
 	private LossyModel mod = new LossyModel();
 	int aa=0, bb=0, cc=10;
 		
-	private HashSet<String> activityLabelsResponse = new HashSet<String>();
+//	private HashSet<String> activityLabelsResponse = new HashSet<String>();
+	private LinkedList<String> activityLabelsResponse = new LinkedList<String>();
 	private LossyCounting<HashMap<String, Integer>> activityLabelsCounterResponse = new LossyCounting<HashMap<String, Integer>>();
 	private LossyCounting<HashMap<String, HashMap<String, Integer>>> pendingConstraintsPerTrace = new LossyCounting<HashMap<String, HashMap<String, Integer>>>();
 	private LossyCounting<HashMap<String, HashMap<String, Integer>>> fulfilledConstraintsPerTrace = new LossyCounting<HashMap<String, HashMap<String, Integer>>>();
@@ -226,8 +228,10 @@ public class Response implements LCTemplateReplayer {
 		
 		if(snapCollection.containsKey(event)){
 			snapCollection.get(event).add(attribute);
+			if(snapCollection.get(event).size()>5)
+				snapCollection.get(event).removeFirst();
 		}else{
-			ArrayList<HashMap<String, Object>> firstSnap = new ArrayList<HashMap<String, Object>>();
+			LinkedList<HashMap<String, Object>> firstSnap = new LinkedList<HashMap<String, Object>>();
 			firstSnap.add(attribute);
 			snapCollection.put(event, firstSnap);
 		}
@@ -272,7 +276,7 @@ public class Response implements LCTemplateReplayer {
 
 						//for(int i = 0; i<snapCollection.get(existingEvent).size(); i++){	
 						if(snapCollection.get(existingEvent).size()>0){
-							attribute = snapCollection.get(existingEvent).get(snapCollection.get(existingEvent).size()-1);
+							attribute = snapCollection.get(existingEvent).getLast();//.get(snapCollection.get(existingEvent).size()-1);
 
 							fulf = true;
 							nr++;
@@ -286,7 +290,7 @@ public class Response implements LCTemplateReplayer {
 								nr=1;
 							}							
 
-							snapCollection.get(existingEvent).remove(snapCollection.get(existingEvent).size()-1);
+							snapCollection.get(existingEvent).removeLast();//.remove(snapCollection.get(existingEvent).size()-1);
 						}
 						secondElement.put(event, 0);
 						pendingForThisTrace.put(existingEvent, secondElement);
@@ -325,7 +329,7 @@ public class Response implements LCTemplateReplayer {
 //					}
 					//for(int i = 0 ; i<snapCollection.get(firstElement).size(); i++){
 					if(snapCollection.get(firstElement).size()>0){
-						//attribute = snapCollection.get(firstElement).get(snapCollection.get(firstElement).lastIndexOf(firstElement));					
+						attribute = snapCollection.get(firstElement).getLast();//.get(snapCollection.get(firstElement).lastIndexOf(firstElement));					
 						fulf = true;
 						nr++;
 
@@ -337,7 +341,7 @@ public class Response implements LCTemplateReplayer {
 							en++;
 							nr=1;
 						}
-						snapCollection.get(firstElement).remove(snapCollection.get(firstElement).size()-1);						
+						snapCollection.get(firstElement).removeLast();//.remove(snapCollection.get(firstElement).size()-1);						
 					}
 					secondElement.put(event, 0);
 					pendingForThisTrace.put(firstElement, secondElement);
@@ -385,7 +389,7 @@ public class Response implements LCTemplateReplayer {
 						//int numPend = pendingForThisTrace.get(firstElement).get(secondElement);
 						//for(int i = 0; i<snapCollection.get(firstElement).size(); i++){
 						if(snapCollection.get(firstElement).size()>0 && mod.mm.get(firstElement).containsKey(secondElement)){
-							attribute = snapCollection.get(firstElement).get(snapCollection.get(firstElement).size()-1);
+							attribute = snapCollection.get(firstElement).getLast();//.get(snapCollection.get(firstElement).size()-1);
 							fulf = false;
 							nr++;
 
@@ -397,15 +401,19 @@ public class Response implements LCTemplateReplayer {
 								en++;				
 								nr=1;				
 							}
-							snapCollection.get(firstElement).remove(snapCollection.get(firstElement).size()-1);							
+							snapCollection.get(firstElement).removeLast();//.remove(snapCollection.get(firstElement).size()-1);							
 						}
 					}						
 				}
 			}
 		}		
+		
+		if(activityLabelsResponse.size()>10)
+			activityLabelsResponse.removeFirst();
+		
 		mod.clean();
 		//System.out.println(en);
-		System.out.println("Re:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time);		
+		//System.out.println("Re:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time);		
 	}	
 	
 	@Override

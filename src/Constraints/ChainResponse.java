@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import org.deckfour.xes.model.XAttribute;
 import org.deckfour.xes.model.XEvent;
@@ -33,7 +34,8 @@ public class ChainResponse implements LCTemplateReplayer {
 	private LossyModel mod = new LossyModel();
 	int nr = 0, en=0, cc=10;
 	
-	private HashSet<String> activityLabelsChResponse = new HashSet<String>();
+//	private HashSet<String> activityLabelsChResponse = new HashSet<String>();
+	private LinkedList<String> activityLabelsChResponse = new LinkedList<String>();
 	private LossyCounting<HashMap<String, Integer>> activityLabelsCounterChResponse = new LossyCounting<HashMap<String, Integer>>();
 	private LossyCounting<HashMap<String, HashMap<String, Integer>>> fulfilledConstraintsPerTraceCh = new LossyCounting<HashMap<String, HashMap<String, Integer>>>();
 	private LossyCounting<HashMap<String, HashMap<String, Integer>>> violatedConstraintsPerTraceCh = new LossyCounting<HashMap<String, HashMap<String, Integer>>>();
@@ -275,7 +277,7 @@ public class ChainResponse implements LCTemplateReplayer {
 			fulfilledConstraintsPerTraceCh.putItem(caseId, fulfilledForThisTrace);
 			//qualcosa non va nelle regole da trovare le violazioni sono tra event e second?
 			
-			for(String second : counter.keySet()){//activityLabelsChResponse){
+			for(String second : activityLabelsChResponse){//counter.keySet()){//
 
 				if(!second.equals(event) && !second.equals(previous)){
 					int noviol = 0;
@@ -319,6 +321,9 @@ public class ChainResponse implements LCTemplateReplayer {
 		activityLabelsCounterChResponse.putItem(caseId, counter);
 		lastActivity.putItem(caseId, event);
 		//***********************
+		
+		if(activityLabelsChResponse.size()>10)
+			activityLabelsChResponse.removeFirst();
 		
 		mod.clean();
 		//System.out.println(en);
