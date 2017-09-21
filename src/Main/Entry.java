@@ -70,24 +70,34 @@ public class Entry {
 //			String activity = Utils.getActivityName(event);
 			ne++;
 			int currentBucket = (int)((double)ne / (double)bucketWidth);
+			long start3 = System.currentTimeMillis();
 			replayer.addObservation(caseId, currentBucket);
-			replayer.process(event, t, nominal, bucketWidth);
-			if(ne%100==0){
-				System.out.println("Time:\t"+((System.currentTimeMillis()-start)/100));
-				System.out.println(ne);
-				if(ne%1000==0){
-					System.out.println("Time of 1000:\t"+((System.currentTimeMillis()-start1)/1000));
-					System.out.println("Total time:\t"+start2);
-					System.out.println(ne);					
-					start1 = System.currentTimeMillis();
-				}
-				start = System.currentTimeMillis();
-			}
+			if(ne>39100)
+				System.out.println("AddObs old:\t"+(System.currentTimeMillis()-start3));
 			
+			long start4 = System.currentTimeMillis();
+			replayer.process(event, t, nominal, bucketWidth);
+			if(ne>39100)
+				System.out.println("AddObs old:\t"+(System.currentTimeMillis()-start4));
+			
+			if(ne%10000==0){
+//				System.out.println("Time:\t"+((System.currentTimeMillis()-start)/100));
+//				System.out.println(ne);
+//				if(ne%1000==0){
+//					System.out.println("Time of 1000:\t"+((System.currentTimeMillis()-start1)/1000));
+					System.out.println("Total time:\t"+(System.currentTimeMillis()-start2));
+					System.out.println(ne);					
+//					start1 = System.currentTimeMillis();
+//				}
+//				start = System.currentTimeMillis();
+			}
+			long start5 = System.currentTimeMillis();
 			// events cleanup
 			if (ne % bucketWidth == 0) {
 				replayer.cleanup(currentBucket);
 			}
+			if(ne>39100)
+				System.out.println("CleanUP:\t"+(System.currentTimeMillis()-start5));
 		}
 		br.close();
 

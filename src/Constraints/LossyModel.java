@@ -30,7 +30,7 @@ public class LossyModel {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> addObservation(String eventA, String eventB, ArrayList<Attribute> Attr, HashMap<String, Object> attr, HashMap<String, Integer> attInd, int classif, int bucketWidth){
-		//long start = System.currentTimeMillis();
+		long start = System.currentTimeMillis();
 		
 		myAttr = Attr;
 		attribute = attr;
@@ -63,9 +63,9 @@ public class LossyModel {
 		//if(observation%bucket==0) //chiamala in fondo ad ogni constraint 
 			//clean();
 		
-		//long stop = System.currentTimeMillis();
+		if(observation >39100)		
+			System.out.println("Lossy:"+( System.currentTimeMillis()-start));
 		
-		//System.out.println("Lossy:"+(stop-start));
 		return mm;
 	}
 	
@@ -113,7 +113,8 @@ public class LossyModel {
 		hf.leafpredictionOption.setChosenLabel("MC");
 		hf.gracePeriodOption.setValue(5);
 		hf.splitConfidenceOption.setValue(1.0E-2);
-
+		hf.maxByteSizeOption.setValue(10);
+		
 		hf.trainOnInstance(instance);
 		return hf;
 		
@@ -215,6 +216,7 @@ public class LossyModel {
 
 		instse.add(instance);
 		//System.out.println(instse);
+		instanceForTree.remove(name);
 		instanceForTree.put(name, instse);
 
 		return instance;
