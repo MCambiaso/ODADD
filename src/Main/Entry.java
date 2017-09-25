@@ -49,7 +49,7 @@ public class Entry {
 		int ne=0;
 		//Socket s = new Socket(address, port);
 
-		InputStream in = new FileInputStream(new File("/home/matte/Scaricati/CompleteHospital"));////home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/Log/logTest2------------logTest3 hospitalStream logTest2 CompleteHospital Experiments/40x20x5000
+		InputStream in = new FileInputStream(new File("test/Log/CompleteHospital"));////home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/Log/logTest2------------logTest3 hospitalStream logTest2 CompleteHospital Experiments/40x20x5000
 
 //		status.setText("Miner started. Collecting events...");
 //		status.setIcon(UIColors.loadingIcon);
@@ -108,7 +108,7 @@ public class Entry {
 	
 	public static void AttributeValue(){
 		try {
-			InputStream in = new FileInputStream(new File("/home/matte/Scaricati/CompleteHospital"));//Scrivania/3activitiesResponse logTest3CompleteHospital
+			InputStream in = new FileInputStream(new File("test/Log/CompleteHospital"));//Scrivania/3activitiesResponse logTest3CompleteHospital
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			int i=0;
 			String str = "";
