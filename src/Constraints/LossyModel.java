@@ -38,16 +38,24 @@ public class LossyModel {
 		bucket = bucketWidth;
 		
 		Instance ins = createInstance(eventA+"%"+eventB, classif);
-			
+		
+		if(observation >39100)		
+			System.out.println("Instance:\t"+( System.currentTimeMillis()-start));
+		
 		if(mm.containsKey(eventA)){
 			if(mm.get(eventA).containsKey(eventB)){
-				mm.get(eventA).get(eventB).getElement1().trainOnInstance(ins);
+				HoeffdingTree tHF = mm.get(eventA).get(eventB).getElement1();
+				tHF.trainOnInstance(ins);
 				//System.out.println("Frequenza:\t"+mm.get(eventA).get(eventB).getElement0()+"\t\tNumero di regole associate ad "+eventA+":\t"+mm.get(eventA).size());
-				Pair<Integer, HoeffdingTree> pair = new Pair(mm.get(eventA).get(eventB).getElement0()+1, mm.get(eventA).get(eventB).getElement1());
+				Pair<Integer, HoeffdingTree> pair = new Pair(mm.get(eventA).get(eventB).getElement0()+1, tHF);//mm.get(eventA).get(eventB).getElement1());
 				mm.get(eventA).remove(eventB);
 				mm.get(eventA).put(eventB, pair);
+				if(observation >39100)		
+					System.out.println("HF1:\t"+( System.currentTimeMillis()-start));
 			}else{
-				mm.get(eventA).put(eventB, new Pair((int)(observation/bucket)+1,  HF(eventA, eventB, ins)));//non è 1 ma 
+				mm.get(eventA).put(eventB, new Pair((int)(observation/bucket)+1,  HF(eventA, eventB, ins)));
+//				if(observation >39100)		
+//					System.out.println("HF2:\t\t"+( System.currentTimeMillis()-start));
 				//mm.get(eventA).get(eventB).createPair(mm.get(eventA).get(eventB).getElement0()+1, HF(eventA, eventB, createInstance(eventA+"%"+eventB, classif)));//controllare se ne mette più di uno
 			}
 		}else{
@@ -56,6 +64,8 @@ public class LossyModel {
 			Pair<Integer, HoeffdingTree> pair = new Pair((int)(observation/bucket)+1,  HF(eventA, eventB, ins));			
 			sec.put(eventB, pair);
 			mm.put(eventA, sec);
+			if(observation >39100)		
+				System.out.println("HF:\t\t\t"+( System.currentTimeMillis()-start));
 		}
 
 		observation ++;	
@@ -63,8 +73,8 @@ public class LossyModel {
 		//if(observation%bucket==0) //chiamala in fondo ad ogni constraint 
 			//clean();
 		
-		if(observation >39100)		
-			System.out.println("Lossy:"+( System.currentTimeMillis()-start));
+//		if(observation >39100)		
+//			System.out.println("Lossy:"+( System.currentTimeMillis()-start));
 		
 		return mm;
 	}
@@ -101,9 +111,12 @@ public class LossyModel {
 	
 	//********** Create and feed the Hoeffding tree **********
 	public HoeffdingTree HF(String A, String B, Instance instance){
+		long start = System.currentTimeMillis();
 		HoeffdingTree hf = new HoeffdingTree();
 		
 		Instances in = instanceForTree.get(A+"%"+B);
+		if(observation >39100)		
+			System.out.println("1:\t\t"+( System.currentTimeMillis()-start));
 		InstancesHeader ih = new InstancesHeader(in);
 		in.setClassIndex(0);
 
@@ -111,11 +124,16 @@ public class LossyModel {
 
 		hf.setModelContext(ih);
 		hf.leafpredictionOption.setChosenLabel("MC");
-		hf.gracePeriodOption.setValue(5);
+		hf.gracePeriodOption.setValue(10);
 		hf.splitConfidenceOption.setValue(1.0E-2);
 		hf.maxByteSizeOption.setValue(10);
 		
+		if(observation >39100)		
+			System.out.println("2:\t\t\t"+( System.currentTimeMillis()-start));
+		
 		hf.trainOnInstance(instance);
+		if(observation >39100)		
+			System.out.println("3:\t\t\t\t"+( System.currentTimeMillis()-start));
 		return hf;
 		
 //		if(mm.containsKey(A)&&!mm.get(A).containsKey(B)){ //instanceForTree.get(name).numInstances()>=5 && 
