@@ -346,7 +346,7 @@ public class Precedence implements LCTemplateReplayer {
 				printout.println(mod.mm.get(aEvent).get(bEvent).getElement1());
 			}
 		}	
-//			System.out.println("AltPrec"+"\t"+fulfill+"\t"+(act-fulfill));
+			System.out.println("Prec");
 			printout.flush();
 			printout.close();
 	}

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 
 import org.deckfour.xes.model.XAttribute;
@@ -40,6 +41,9 @@ public class Entry {
 		long start = System.currentTimeMillis();
 		AttributeValue();
 		System.out.println("Preprocessing Time:\t"+(System.currentTimeMillis()-start));
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis(System.currentTimeMillis());
+		System.out.println(calendar.getTime());
 		Run();
 		System.out.println("Total Time:\t"+(System.currentTimeMillis()-start));
 	}
@@ -49,7 +53,7 @@ public class Entry {
 		int ne=0;
 		//Socket s = new Socket(address, port);
 
-		InputStream in = new FileInputStream(new File("/home/matte/Scaricati/CompleteHospital"));////home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/Log/logTest2------------logTest3 hospitalStream logTest2 CompleteHospital Experiments/40x20x5000
+		InputStream in = new FileInputStream(new File("/home/matte/Scaricati/CompleteHospital"));// ./test/Log/logTest3 ////home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/Log/logTest2------------logTest3 hospitalStream logTest2 CompleteHospital Experiments/40x20x5000
 
 //		status.setText("Miner started. Collecting events...");
 //		status.setIcon(UIColors.loadingIcon);
@@ -72,32 +76,26 @@ public class Entry {
 			int currentBucket = (int)((double)ne / (double)bucketWidth);
 			long start3 = System.currentTimeMillis();
 			replayer.addObservation(caseId, currentBucket);
-			if(ne>39100)
-				System.out.println("AddObs old:\t"+(System.currentTimeMillis()-start3));
 			
 			long start4 = System.currentTimeMillis();
 			replayer.process(event, t, nominal, bucketWidth);
-			if(ne>39100)
-				System.out.println("AddObs old:\t"+(System.currentTimeMillis()-start4));
 			
 			if(ne%10000==0){
-//				System.out.println("Time:\t"+((System.currentTimeMillis()-start)/100));
-//				System.out.println(ne);
-//				if(ne%1000==0){
-//					System.out.println("Time of 1000:\t"+((System.currentTimeMillis()-start1)/1000));
-					System.out.println("Total time:\t"+(System.currentTimeMillis()-start2));
-					System.out.println(ne);					
-//					start1 = System.currentTimeMillis();
-//				}
-//				start = System.currentTimeMillis();
+				System.out.println("Time:\t"+(System.currentTimeMillis()-start2));
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTimeInMillis(System.currentTimeMillis());
+				System.out.println(calendar.getTime());
+				System.out.println(ne);
 			}
+			System.out.println(ne);
+			
 			long start5 = System.currentTimeMillis();
 			// events cleanup
 			if (ne % bucketWidth == 0) {
 				replayer.cleanup(currentBucket);
 			}
-			if(ne>39100)
-				System.out.println("CleanUP:\t"+(System.currentTimeMillis()-start5));
+			//if(ne>50000)
+				//System.out.println("CleanUP:\t"+(System.currentTimeMillis()-start5));//stampa le size di mm per tutte le a e per questa a la size di tutte la b
 		}
 		br.close();
 
@@ -108,7 +106,7 @@ public class Entry {
 	
 	public static void AttributeValue(){
 		try {
-			InputStream in = new FileInputStream(new File("/home/matte/Scaricati/CompleteHospital"));//Scrivania/3activitiesResponse logTest3CompleteHospital
+			InputStream in = new FileInputStream(new File("/home/matte/Scaricati/CompleteHospital"));// ./test/Log/logTest3 Scrivania/3activitiesResponse logTest3CompleteHospital
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			int i=0;
 			String str = "";

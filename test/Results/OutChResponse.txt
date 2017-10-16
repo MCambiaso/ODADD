@@ -1,0 +1,80 @@
+@@@@@@@@@@@@@@@@@@@@@@@@
+gammaglutamyltranspeptidase-complete//ordertarief-complete
+@@@@@@@@@@@@
+Model type: moa.classifiers.trees.HoeffdingTree
+model training instances = 1
+model serialized size (bytes) = 0.0
+tree size (nodes) = 1
+tree size (leaves) = 1
+active learning leaves = 1
+tree depth = 0.0
+active leaf byte size estimate = 0.0
+inactive leaf byte size estimate = 0.0
+byte size estimate overhead = 1
+Model description:
+Leaf [class:class] = <class 2:VIOLATION> weights: {0|1}
+
+@@@@@@@@@@@@@@@@@@@@@@@@
+trombocyten tellen - elektronisch-complete//ordertarief-complete
+@@@@@@@@@@@@
+Model type: moa.classifiers.trees.HoeffdingTree
+model training instances = 1
+model serialized size (bytes) = 0.0
+tree size (nodes) = 1
+tree size (leaves) = 1
+active learning leaves = 1
+tree depth = 0.0
+active leaf byte size estimate = 0.0
+inactive leaf byte size estimate = 0.0
+byte size estimate overhead = 1
+Model description:
+Leaf [class:class] = <class 2:VIOLATION> weights: {0|1}
+
+@@@@@@@@@@@@@@@@@@@@@@@@
+calcium-complete//ordertarief-complete
+@@@@@@@@@@@@
+Model type: moa.classifiers.trees.HoeffdingTree
+model training instances = 1
+model serialized size (bytes) = 0.0
+tree size (nodes) = 1
+tree size (leaves) = 1
+active learning leaves = 1
+tree depth = 0.0
+active leaf byte size estimate = 0.0
+inactive leaf byte size estimate = 0.0
+byte size estimate overhead = 1
+Model description:
+Leaf [class:class] = <class 2:VIOLATION> weights: {0|1}
+
+@@@@@@@@@@@@@@@@@@@@@@@@
+screening antistoffen erytrocyten-complete//ordertarief-complete
+@@@@@@@@@@@@
+Model type: moa.classifiers.trees.HoeffdingTree
+model training instances = 1
+model serialized size (bytes) = 0.0
+tree size (nodes) = 1
+tree size (leaves) = 1
+active learning leaves = 1
+tree depth = 0.0
+active leaf byte size estimate = 0.0
+inactive leaf byte size estimate = 0.0
+byte size estimate overhead = 1
+Model description:
+Leaf [class:class] = <class 2:VIOLATION> weights: {0|1}
+
+@@@@@@@@@@@@@@@@@@@@@@@@
+albumine-complete//ordertarief-complete
+@@@@@@@@@@@@
+Model type: moa.classifiers.trees.HoeffdingTree
+model training instances = 1
+model serialized size (bytes) = 0.0
+tree size (nodes) = 1
+tree size (leaves) = 1
+active learning leaves = 1
+tree depth = 0.0
+active leaf byte size estimate = 0.0
+inactive leaf byte size estimate = 0.0
+byte size estimate overhead = 1
+Model description:
+Leaf [class:class] = <class 2:VIOLATION> weights: {0|1}
+

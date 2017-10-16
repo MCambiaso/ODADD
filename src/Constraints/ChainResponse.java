@@ -334,13 +334,11 @@ public class ChainResponse implements LCTemplateReplayer {
 	public void results(){
 		for(String aEvent : mod.mm.keySet()){ 
 			for(String bEvent : mod.mm.get(aEvent).keySet()){
-				printout.println("@@@@@@@@@@@@@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
-//				System.out.println(mc.get(aEvent).get(bEvent).getElement0());
-//				System.out.println(mc.get(aEvent).get(bEvent).getElement1());
+				printout.println("@@@@@@@@@@@@@@@@@@@@@@@@\n"+aEvent+"//"+bEvent+"\n@@@@@@@@@@@@");
 				printout.println(mod.mm.get(aEvent).get(bEvent).getElement1());
 			}
 		}	
-//			System.out.println("AltPrec"+"\t"+fulfill+"\t"+(act-fulfill));
+			System.out.println("ChResp");
 			printout.flush();
 			printout.close();
 	}

@@ -470,13 +470,13 @@ public class AlternateResponse implements LCTemplateReplayer {
 	public void results(){
 		for(String aEvent : mod.mm.keySet()){ 
 			for(String bEvent : mod.mm.get(aEvent).keySet()){
-				printout.println("@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
+				printout.println("@@@@@@@@@@@@\n"+aEvent+"//"+bEvent+"\n@@@@@@@@@@@@");
 				printout.println(mod.mm.get(aEvent).get(bEvent).getElement1());
 			}
 		}	
-//			System.out.println("AltPrec"+"\t"+fulfill+"\t"+(act-fulfill));
-			printout.flush();
-			printout.close();
+		System.out.println("AltPrec");
+		printout.flush();
+		printout.close();
 	}
 	
 	public static boolean isNumeric(String str)  

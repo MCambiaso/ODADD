@@ -388,7 +388,7 @@ public class Response implements LCTemplateReplayer {
 					if(!pendingForThisTrace.get(firstElement).get(secondElement).equals(0)){
 						//int numPend = pendingForThisTrace.get(firstElement).get(secondElement);
 						//for(int i = 0; i<snapCollection.get(firstElement).size(); i++){
-						if(snapCollection.get(firstElement).size()>0 && mod.mm.get(firstElement).containsKey(secondElement)){
+						if(snapCollection.get(firstElement).size()>1 && mod.mm.get(firstElement).containsKey(secondElement)){
 							attribute = snapCollection.get(firstElement).getLast();//.get(snapCollection.get(firstElement).size()-1);
 							fulf = false;
 							nr++;
@@ -420,15 +420,13 @@ public class Response implements LCTemplateReplayer {
 	public void results(){
 		for(String aEvent : mod.mm.keySet()){ 
 			for(String bEvent : mod.mm.get(aEvent).keySet()){
-				printout.println("@@@@@@@@@@@@@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
-//				System.out.println(mc.get(aEvent).get(bEvent).getElement0());
-//				System.out.println(mc.get(aEvent).get(bEvent).getElement1());
+				printout.println("@@@@@@@@@@@@@@@@@@@@@@@@\n"+aEvent+"//"+bEvent+"\n@@@@@@@@@@@@");
 				printout.println(mod.mm.get(aEvent).get(bEvent).getElement1());
 			}
 		}	
-//			System.out.println("AltPrec"+"\t"+fulfill+"\t"+(act-fulfill));
-			printout.flush();
-			printout.close();
+		System.out.println("Resp");
+		printout.flush();
+		printout.close();
 	}
 	
 	public static boolean isNumeric(String str)  

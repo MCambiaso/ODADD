@@ -465,7 +465,7 @@ public class RespondedExistence implements LCTemplateReplayer {
 				printout.println(mod.mm.get(aEvent).get(bEvent).getElement1());
 			}
 		}	
-//			System.out.println("AltPrec"+"\t"+fulfill+"\t"+(act-fulfill));
+			System.out.println("RespExist");
 			printout.flush();
 			printout.close();
 	}

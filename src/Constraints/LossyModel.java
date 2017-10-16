@@ -39,8 +39,8 @@ public class LossyModel {
 		
 		Instance ins = createInstance(eventA+"%"+eventB, classif);
 		
-		if(observation >39100)		
-			System.out.println("Instance:\t"+( System.currentTimeMillis()-start));
+//		if(observation >39100)		
+//			System.out.println("Instance:\t"+( System.currentTimeMillis()-start));
 		
 		if(mm.containsKey(eventA)){
 			if(mm.get(eventA).containsKey(eventB)){
@@ -50,8 +50,8 @@ public class LossyModel {
 				Pair<Integer, HoeffdingTree> pair = new Pair(mm.get(eventA).get(eventB).getElement0()+1, tHF);//mm.get(eventA).get(eventB).getElement1());
 				mm.get(eventA).remove(eventB);
 				mm.get(eventA).put(eventB, pair);
-				if(observation >39100)		
-					System.out.println("HF1:\t"+( System.currentTimeMillis()-start));
+//				if(observation >39100)		
+//					System.out.println("HF1:\t"+( System.currentTimeMillis()-start));
 			}else{
 				mm.get(eventA).put(eventB, new Pair((int)(observation/bucket)+1,  HF(eventA, eventB, ins)));
 //				if(observation >39100)		
@@ -64,8 +64,8 @@ public class LossyModel {
 			Pair<Integer, HoeffdingTree> pair = new Pair((int)(observation/bucket)+1,  HF(eventA, eventB, ins));			
 			sec.put(eventB, pair);
 			mm.put(eventA, sec);
-			if(observation >39100)		
-				System.out.println("HF:\t\t\t"+( System.currentTimeMillis()-start));
+//			if(observation >39100)		
+//				System.out.println("HF:\t\t\t"+( System.currentTimeMillis()-start));
 		}
 
 		observation ++;	
@@ -73,7 +73,7 @@ public class LossyModel {
 		//if(observation%bucket==0) //chiamala in fondo ad ogni constraint 
 			//clean();
 		
-//		if(observation >39100)		
+//		if(observation >50000)		
 //			System.out.println("Lossy:"+( System.currentTimeMillis()-start));
 		
 		return mm;
@@ -115,8 +115,8 @@ public class LossyModel {
 		HoeffdingTree hf = new HoeffdingTree();
 		
 		Instances in = instanceForTree.get(A+"%"+B);
-		if(observation >39100)		
-			System.out.println("1:\t\t"+( System.currentTimeMillis()-start));
+		//if(observation >39100)		
+			//System.out.println("1:\t\t"+( System.currentTimeMillis()-start));
 		InstancesHeader ih = new InstancesHeader(in);
 		in.setClassIndex(0);
 
@@ -124,16 +124,17 @@ public class LossyModel {
 
 		hf.setModelContext(ih);
 		hf.leafpredictionOption.setChosenLabel("MC");
-		hf.gracePeriodOption.setValue(10);
-		hf.splitConfidenceOption.setValue(1.0E-2);
-		hf.maxByteSizeOption.setValue(10);
+		//hf.gracePeriodOption.setValue(5);
+		//hf.splitConfidenceOption.setValue(1.0E-2);
+		//hf.maxByteSizeOption.setValue(10);// di default 32 MByte espressi in bit
+		//hf.stopMemManagementOption.setValue(true);
 		
-		if(observation >39100)		
-			System.out.println("2:\t\t\t"+( System.currentTimeMillis()-start));
+		//if(observation >39100)		
+			//System.out.println("2:\t\t\t"+( System.currentTimeMillis()-start));
 		
 		hf.trainOnInstance(instance);
-		if(observation >39100)		
-			System.out.println("3:\t\t\t\t"+( System.currentTimeMillis()-start));
+		//if(observation >39100)		
+			//System.out.println("3:\t\t\t\t"+( System.currentTimeMillis()-start));
 		return hf;
 		
 //		if(mm.containsKey(A)&&!mm.get(A).containsKey(B)){ //instanceForTree.get(name).numInstances()>=5 && 

@@ -1,0 +1,48 @@
+@@@@@@@@@@@@@@@@@@@@@@@@
+differentiatie leukocyten - handmatig-complete%melkzuurdehydrogenase -ldh- kinetisch-complete
+@@@@@@@@@@@@
+Model type: moa.classifiers.trees.HoeffdingTree
+model training instances = 1
+model serialized size (bytes) = 0.0
+tree size (nodes) = 1
+tree size (leaves) = 1
+active learning leaves = 1
+tree depth = 0.0
+active leaf byte size estimate = 0.0
+inactive leaf byte size estimate = 0.0
+byte size estimate overhead = 1
+Model description:
+Leaf [class:class] = <class 1:FULFILLMENT> weights: {1}
+
+@@@@@@@@@@@@@@@@@@@@@@@@
+screening antistoffen erytrocyten-complete%sgpt - alat kinetisch-complete
+@@@@@@@@@@@@
+Model type: moa.classifiers.trees.HoeffdingTree
+model training instances = 1
+model serialized size (bytes) = 0.0
+tree size (nodes) = 1
+tree size (leaves) = 1
+active learning leaves = 1
+tree depth = 0.0
+active leaf byte size estimate = 0.0
+inactive leaf byte size estimate = 0.0
+byte size estimate overhead = 1
+Model description:
+Leaf [class:class] = <class 1:FULFILLMENT> weights: {1}
+
+@@@@@@@@@@@@@@@@@@@@@@@@
+ordertarief-complete%bloedgroep abo en rhesusfactor-complete
+@@@@@@@@@@@@
+Model type: moa.classifiers.trees.HoeffdingTree
+model training instances = 1
+model serialized size (bytes) = 0.0
+tree size (nodes) = 1
+tree size (leaves) = 1
+active learning leaves = 1
+tree depth = 0.0
+active leaf byte size estimate = 0.0
+inactive leaf byte size estimate = 0.0
+byte size estimate overhead = 1
+Model description:
+Leaf [class:class] = <class 1:FULFILLMENT> weights: {1}
+
