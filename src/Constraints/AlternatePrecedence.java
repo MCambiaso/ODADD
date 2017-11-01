@@ -225,7 +225,7 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 		
 		for(Attribute attr : myAttr){
 			if(!attIndex.containsKey(attr.name()) && !attr.name().equals("class")){
-				attIndex.put(attr.name(), nomin.get(attr.name()).indexOf("0"));
+				attIndex.put(attr.name(), 0);//nomin.get(attr.name()).indexOf("0"));
 			}
 		}
 		
@@ -402,7 +402,7 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 	public void results(){
 		for(String aEvent : mod.mm.keySet()){ 
 			for(String bEvent : mod.mm.get(aEvent).keySet()){
-				printout.println("@@@@@@@@@@@@\n"+aEvent+"//"+bEvent+"\n@@@@@@@@@@@@");
+				printout.println("@@@@@@@@@@@@@@@@@@@@@@@@\n"+aEvent+"//"+bEvent+"\n@@@@@@@@@@@@");
 				printout.println(mod.mm.get(aEvent).get(bEvent).getElement1());
 			}
 		}	

@@ -119,8 +119,8 @@ public class Response implements LCTemplateReplayer {
 //			myAttr.add(new Attribute("data18"));
 //			myAttr.add(new Attribute("data19"));
 //			myAttr.add(new Attribute("data20"));
-			myAttr.add(new Attribute("org:group", nomin.get("org:group")));
-			myAttr.add(new Attribute("Producer code", nomin.get("Producer code")));
+//			myAttr.add(new Attribute("org:group", nomin.get("org:group")));
+//			myAttr.add(new Attribute("Producer code", nomin.get("Producer code")));
 			myAttr.add(new Attribute("Section", nomin.get("Section")));
 			myAttr.add(new Attribute("Activity code", nomin.get("Activity code")));
 //			myAttr.add(new Attribute("Number of executions"));
@@ -219,7 +219,7 @@ public class Response implements LCTemplateReplayer {
 		
 		for(Attribute attr : myAttr){
 			if(!attIndex.containsKey(attr.name()) && !attr.name().equals("class")){
-				attIndex.put(attr.name(), nomin.get(attr.name()).indexOf("0"));
+				attIndex.put(attr.name(), 0);//nomin.get(attr.name()).indexOf("0"));
 			}
 		}
 		

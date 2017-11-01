@@ -13,13 +13,11 @@
 	<classpathentry kind="lib" path="lib/meka-1.9.0.jar"/>
 	<classpathentry kind="lib" path="lib/moa-2016.04.jar"/>
 	<classpathentry kind="lib" path="lib/pentaho-package-manager-1.0.8.jar"/>
-	<classpathentry kind="lib" path="lib/sizeofag-1.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/trove4j-3.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/weka-dev-3.7.12.jar"/>
 	<classpathentry kind="lib" path="lib/OpenXES-20160212.jar"/>
 	<classpathentry kind="lib" path="lib/OpenXES-XStream-20160212.jar"/>
 	<classpathentry kind="lib" path="lib/moa-release-2016.04/moa-release-2016.04/lib/sizeofag-1.0.0.jar"/>
 	<classpathentry kind="lib" path="/home/matte/Scaricati/moa-release-2016.04/moa-release-2016.04/lib/moa-2016.04.jar"/>
-	<classpathentry kind="lib" path="/home/matte/Scaricati/moa-release-2016.04/moa-release-2016.04/lib/sizeofag-1.0.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

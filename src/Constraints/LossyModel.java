@@ -19,13 +19,13 @@ import moa.classifiers.trees.HoeffdingTree;
 public class LossyModel {
 
 	private HashMap<String, Instances> instanceForTree = new HashMap<String, Instances>();
-	private ArrayList<Attribute> myAttr = new ArrayList<Attribute>(20);
+	private ArrayList<Attribute> myAttr = new ArrayList<Attribute>(100);
 	private HashMap<String, Object> attribute;
 	private HashMap<String, Integer> attIndex = new HashMap<String, Integer>();
 	
 	public HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mm;
 	int observation = 0;
-	int bucket;
+	int bucket = 50;
 	
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -124,8 +124,8 @@ public class LossyModel {
 
 		hf.setModelContext(ih);
 		hf.leafpredictionOption.setChosenLabel("MC");
-		//hf.gracePeriodOption.setValue(5);
-		//hf.splitConfidenceOption.setValue(1.0E-2);
+		hf.gracePeriodOption.setValue(5);
+		hf.splitConfidenceOption.setValue(1.0E-2);
 		//hf.maxByteSizeOption.setValue(10);// di default 32 MByte espressi in bit
 		//hf.stopMemManagementOption.setValue(true);
 		

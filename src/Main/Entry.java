@@ -31,8 +31,12 @@ public class Entry {
 	private static HashMap<String, ArrayList<String>> nominal = new HashMap<String, ArrayList<String>>();
 	protected static OSXMLConverter converter = new OSXMLConverter();
 	private static LCReplayer replayer = new LCReplayer();
-	private static int bucketWidth=10;
-
+	private static int bucketWidth=50;
+	
+	private static String path = "/home/matte/Scaricati/CompleteHospital"; ///
+//	private static String path = "/home/matte/10x5x1000";
+	
+	
 	public Entry() {
 		// TODO Auto-generated constructor stub
 	}
@@ -53,7 +57,7 @@ public class Entry {
 		int ne=0;
 		//Socket s = new Socket(address, port);
 
-		InputStream in = new FileInputStream(new File("/home/matte/Scaricati/CompleteHospital"));// ./test/Log/logTest3 ////home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/Log/logTest2------------logTest3 hospitalStream logTest2 CompleteHospital Experiments/40x20x5000
+		InputStream in = new FileInputStream(new File(path));//"));// ./test/Log/logTest3 ////home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/Log/logTest2------------logTest3 hospitalStream logTest2 CompleteHospital Experiments/40x20x5000
 
 //		status.setText("Miner started. Collecting events...");
 //		status.setIcon(UIColors.loadingIcon);
@@ -80,6 +84,14 @@ public class Entry {
 			long start4 = System.currentTimeMillis();
 			replayer.process(event, t, nominal, bucketWidth);
 			
+			if(ne%1000==0 && ne<10001){
+				System.out.println("Time under 10000:\t"+(System.currentTimeMillis()-start2));
+//				Calendar calendar = Calendar.getInstance();
+//				calendar.setTimeInMillis(System.currentTimeMillis());
+//				System.out.println(calendar.getTime());
+				System.out.println(ne);
+			}
+			
 			if(ne%10000==0){
 				System.out.println("Time:\t"+(System.currentTimeMillis()-start2));
 				Calendar calendar = Calendar.getInstance();
@@ -87,7 +99,7 @@ public class Entry {
 				System.out.println(calendar.getTime());
 				System.out.println(ne);
 			}
-			System.out.println(ne);
+			//System.out.println(ne);
 			
 			long start5 = System.currentTimeMillis();
 			// events cleanup
@@ -106,7 +118,7 @@ public class Entry {
 	
 	public static void AttributeValue(){
 		try {
-			InputStream in = new FileInputStream(new File("/home/matte/Scaricati/CompleteHospital"));// ./test/Log/logTest3 Scrivania/3activitiesResponse logTest3CompleteHospital
+			InputStream in = new FileInputStream(new File(path));// ./test/Log/logTest3 Scrivania/3activitiesResponse logTest3CompleteHospital
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			int i=0;
 			String str = "";
