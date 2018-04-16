@@ -26,14 +26,14 @@ public class RespondedExistence implements LCTemplateReplayer {
 	
 	private HashMap<String, LinkedList<HashMap<String, Object>>> snapCollection = new HashMap<String, LinkedList<HashMap<String, Object>>>();
 	private HashMap<String, Object> attribute;
-	ArrayList<Attribute> myAttr = new ArrayList<Attribute>(20);
+	ArrayList<Attribute> myAttr = new ArrayList<Attribute>(64);
 	ArrayList<Attribute> myAttrTr ;
 	private HashMap<String, Integer> attIndex = new HashMap<String, Integer>();
 	
 	boolean first = true, fulf = true;
 	
 	//static HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
-	private LossyModel mod = new LossyModel();
+	private LossyModel mod;// = new LossyModel();
 	int nr = 0, en=0, ff=0, vv=0, cc=10;
 
 //	private HashSet<String> activityLabelsRespondedExistence = new HashSet<String>();
@@ -41,7 +41,7 @@ public class RespondedExistence implements LCTemplateReplayer {
 	private LossyCounting<HashMap<String, Integer>> activityLabelsCounterRespondedExistence = new LossyCounting<HashMap<String, Integer>>();
 	private LossyCounting<HashMap<String, HashMap<String, Integer>>> pendingConstraintsPerTraceRe = new LossyCounting<HashMap<String, HashMap<String, Integer>>>();
 	
-	File file = new File("/home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/Results/OutRespondedExistence.txt");
+	File file = new File("/home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/SynteticResults/OutRespondedExistence.txt");
 	FileWriter fw = null;
 	BufferedWriter brf;
 	static PrintWriter printout;{			
@@ -71,6 +71,11 @@ public class RespondedExistence implements LCTemplateReplayer {
 			e.printStackTrace();
 		}
 	}
+	
+	@Override
+	public void setAttribute(Attribute[] allAttr, int[] indVal, double[] attVal){
+		mod = new LossyModel(allAttr, indVal, attVal);
+	}
 
 	@Override
 	public void cleanup(Integer currentBucket) {
@@ -91,112 +96,16 @@ public class RespondedExistence implements LCTemplateReplayer {
 
 		ArrayList<String> classe = new ArrayList<String>(2);
 		classe.add("FULFILLMENT");
-		classe.add("VIOLATION");
-		
-		if(first){
-			myAttr.add(new Attribute("class", classe));
-//			myAttr.add(new Attribute("data1"));
-//			myAttr.add(new Attribute("data2"));
-//			myAttr.add(new Attribute("data3"));
-//			myAttr.add(new Attribute("data4"));
-//			myAttr.add(new Attribute("data5"));
-//			myAttr.add(new Attribute("data6"));
-//			myAttr.add(new Attribute("data7"));
-//			myAttr.add(new Attribute("data8"));
-//			myAttr.add(new Attribute("data9"));
-//			myAttr.add(new Attribute("data10"));
-//			myAttr.add(new Attribute("data11"));
-//			myAttr.add(new Attribute("data12"));
-//			myAttr.add(new Attribute("data13"));
-//			myAttr.add(new Attribute("data14"));
-//			myAttr.add(new Attribute("data15"));
-//			myAttr.add(new Attribute("data16"));
-//			myAttr.add(new Attribute("data17"));
-//			myAttr.add(new Attribute("data18"));
-//			myAttr.add(new Attribute("data19"));
-//			myAttr.add(new Attribute("data20"));
-//			myAttr.add(new Attribute("org:group", nomin.get("org:group")));
-//			myAttr.add(new Attribute("Producer code", nomin.get("Producer code")));
-			myAttr.add(new Attribute("Section", nomin.get("Section")));
-			myAttr.add(new Attribute("Activity code", nomin.get("Activity code")));
-//			myAttr.add(new Attribute("Number of executions"));
-			myAttr.add(new Attribute("Specialism code", nomin.get("Specialism code")));
-//			myAttr.add(new Attribute("lifecycle:transition", nomin.get("lifecycle:transition")));
-//			myAttr.add(new Attribute("time:timestamp", nomin.get("time:timestamp")));
-//			myAttr.add(new Attribute("stream:lifecycle:trace-transition", nomin.get("stream:lifecycle:trace-transition")));
-//			myAttr.add(new Attribute("concept:name", nomin.get("concept:name")));
-			myAttr.add(new Attribute("Age", nomin.get("Age")));
-			myAttr.add(new Attribute("Age:1", nomin.get("Age:1")));
-			myAttr.add(new Attribute("Age:2", nomin.get("Age:2")));
-			myAttr.add(new Attribute("Age:3", nomin.get("Age:3")));
-			myAttr.add(new Attribute("Age:4", nomin.get("Age:4")));
-			myAttr.add(new Attribute("Age:5", nomin.get("Age:5")));			
-			myAttr.add(new Attribute("Diagnosis code", nomin.get("Diagnosis code")));
-			myAttr.add(new Attribute("Diagnosis code:1", nomin.get("Diagnosis code:1")));
-			myAttr.add(new Attribute("Diagnosis code:2", nomin.get("Diagnosis code:2")));
-			myAttr.add(new Attribute("Diagnosis code:3", nomin.get("Diagnosis code:3")));
-			myAttr.add(new Attribute("Diagnosis code:4", nomin.get("Diagnosis code:4")));
-			myAttr.add(new Attribute("Diagnosis code:5", nomin.get("Diagnosis code:5")));
-			myAttr.add(new Attribute("Diagnosis code:6", nomin.get("Diagnosis code:6")));
-			myAttr.add(new Attribute("Diagnosis code:7", nomin.get("Diagnosis code:7")));
-			myAttr.add(new Attribute("Diagnosis code:8", nomin.get("Diagnosis code:8")));
-			myAttr.add(new Attribute("Diagnosis code:9", nomin.get("Diagnosis code:9")));
-			myAttr.add(new Attribute("Diagnosis code:10", nomin.get("Diagnosis code:10")));
-			myAttr.add(new Attribute("Treatment code", nomin.get("Treatment code")));
-			myAttr.add(new Attribute("Treatment code:1", nomin.get("Treatment code:1")));
-			myAttr.add(new Attribute("Treatment code:2", nomin.get("Treatment code:2")));
-			myAttr.add(new Attribute("Treatment code:3", nomin.get("Treatment code:3")));
-			myAttr.add(new Attribute("Treatment code:4", nomin.get("Treatment code:4")));
-			myAttr.add(new Attribute("Treatment code:5", nomin.get("Treatment code:5")));
-			myAttr.add(new Attribute("Treatment code:6", nomin.get("Treatment code:6")));
-			myAttr.add(new Attribute("Treatment code:7", nomin.get("Treatment code:7")));
-			myAttr.add(new Attribute("Treatment code:8", nomin.get("Treatment code:8")));
-			myAttr.add(new Attribute("Treatment code:9", nomin.get("Treatment code:9")));
-			myAttr.add(new Attribute("Treatment code:10", nomin.get("Treatment code:10")));
-			myAttr.add(new Attribute("Diagnosis", nomin.get("Diagnosis")));
-			myAttr.add(new Attribute("Diagnosis:1", nomin.get("Diagnosis:1")));
-			myAttr.add(new Attribute("Diagnosis:2", nomin.get("Diagnosis:2")));
-			myAttr.add(new Attribute("Diagnosis:3", nomin.get("Diagnosis:3")));
-			myAttr.add(new Attribute("Diagnosis:4", nomin.get("Diagnosis:4")));
-			myAttr.add(new Attribute("Diagnosis:5", nomin.get("Diagnosis:5")));
-			myAttr.add(new Attribute("Diagnosis:6", nomin.get("Diagnosis:6")));
-			myAttr.add(new Attribute("Diagnosis:7", nomin.get("Diagnosis:7")));
-			myAttr.add(new Attribute("Diagnosis:8", nomin.get("Diagnosis:8")));
-			myAttr.add(new Attribute("Diagnosis:9", nomin.get("Diagnosis:9")));
-			myAttr.add(new Attribute("Diagnosis:10", nomin.get("Diagnosis:10")));
-			myAttr.add(new Attribute("Diagnosis Treatment Combination ID", nomin.get("Diagnosis Treatment Combination ID")));
-			myAttr.add(new Attribute("Diagnosis Treatment Combination ID:1", nomin.get("Diagnosis Treatment Combination ID:1")));
-			myAttr.add(new Attribute("Diagnosis Treatment Combination ID:2", nomin.get("Diagnosis Treatment Combination ID:2")));
-			myAttr.add(new Attribute("Diagnosis Treatment Combination ID:3", nomin.get("Diagnosis Treatment Combination ID:3")));
-			myAttr.add(new Attribute("Diagnosis Treatment Combination ID:4", nomin.get("Diagnosis Treatment Combination ID:4")));
-			myAttr.add(new Attribute("Diagnosis Treatment Combination ID:5", nomin.get("Diagnosis Treatment Combination ID:5")));
-			myAttr.add(new Attribute("Diagnosis Treatment Combination ID:6", nomin.get("Diagnosis Treatment Combination ID:6")));
-			myAttr.add(new Attribute("Diagnosis Treatment Combination ID:7", nomin.get("Diagnosis Treatment Combination ID:7")));
-			myAttr.add(new Attribute("Diagnosis Treatment Combination ID:8", nomin.get("Diagnosis Treatment Combination ID:8")));
-			myAttr.add(new Attribute("Diagnosis Treatment Combination ID:9", nomin.get("Diagnosis Treatment Combination ID:9")));
-			myAttr.add(new Attribute("Diagnosis Treatment Combination ID:10", nomin.get("Diagnosis Treatment Combination ID:10")));
-			myAttr.add(new Attribute("Specialism code:1", nomin.get("Specialism code:1")));
-			myAttr.add(new Attribute("Specialism code:2", nomin.get("Specialism code:2")));
-			myAttr.add(new Attribute("Specialism code:3", nomin.get("Specialism code:3")));
-			myAttr.add(new Attribute("Specialism code:4", nomin.get("Specialism code:4")));
-			myAttr.add(new Attribute("Specialism code:5", nomin.get("Specialism code:5")));
-			myAttr.add(new Attribute("Specialism code:6", nomin.get("Specialism code:6")));
-			myAttr.add(new Attribute("Specialism code:7", nomin.get("Specialism code:7")));
-			myAttr.add(new Attribute("Specialism code:8", nomin.get("Specialism code:8")));
-			myAttr.add(new Attribute("Specialism code:9", nomin.get("Specialism code:9")));
-			myAttr.add(new Attribute("Specialism code:10", nomin.get("Specialism code:10")));
-//			End date, Age, Diagnosis code, Treatment code, Diagnosis, Diagnosis Treatment Combination ID, Start date
-			first=false;
-		}	
+		classe.add("VIOLATION");	
 		
 		for(XAttribute attr : eve.getAttributes().values()){
 			if(!attribute.containsKey(attr.getKey())){        
-				if(isNumeric(attr.toString()) && !attr.getKey().equals("Activity code") && !attr.getKey().equals("Specialism code")){
-					double d = Double.parseDouble(attr.toString());
-					attribute.put(attr.getKey(), d); 
-				}else{
+//				if(isNumeric(attr.toString()) && !attr.getKey().equals("Activity code") && !attr.getKey().equals("Specialism code")){
+//					double d = Double.parseDouble(attr.toString());
+//					attribute.put(attr.getKey(), d); 
+//				}else{
 					attribute.put(attr.getKey(), attr.toString());
-				}								
+//				}								
 			}else if(attribute.containsKey(attr.getKey())){               //!attr.getKey().contains(":") && 
 				attribute.remove(attr.getKey());
 				attribute.put(attr.getKey(), attr.toString());
@@ -205,29 +114,39 @@ public class RespondedExistence implements LCTemplateReplayer {
 			attIndex.put(attr.getKey(), l);
 		}		
 		
-		for(XAttribute attr : tr.getAttributes().values()){
-//			if(!myAttrTr.contains(attr.getKey())){
-//				myAttrTr.add(new Attribute(attr.getKey(), nomin.get(attr.getKey())));
-//			}		
+		for(XAttribute attr : tr.getAttributes().values()){			
+			if(!attribute.containsKey(attr.getKey())){        
+//				if(isNumeric(attr.toString()) && !attr.getKey().equals("Activity code") && !attr.getKey().equals("Specialism code")){
+//					double d = Double.parseDouble(attr.toString());
+//					attribute.put(attr.getKey(), d); 
+//				}else{
+					attribute.put(attr.getKey(), attr.toString());
+//				}								
+			}else if(attribute.containsKey(attr.getKey())){               //!attr.getKey().contains(":") && 
+				attribute.remove(attr.getKey());
+				attribute.put(attr.getKey(), attr.toString());
+			}		
 			int l = nomin.get(attr.getKey()).indexOf(attr.toString());
 			attIndex.put(attr.getKey(), l);
 		}
 		
-		for(Attribute attr : myAttr){
-			if(!attIndex.containsKey(attr.name()) && !attr.name().equals("class")){
-				//String attrib = attr.name();
-				attIndex.put(attr.name(), 0);//nomin.get(attr.name()).indexOf("0"));;
-			}
-		}
+//		for(Attribute attr : myAttr){
+//			if(!attIndex.containsKey(attr.name()) && !attr.name().equals("class")){
+//				//String attrib = attr.name();
+//				attIndex.put(attr.name(), nomin.get(attr.name()).indexOf("0"));
+//			}
+//		}
 		
 		String caseId = Utils.getCaseID(tr);
 		String event = Utils.getActivityName(eve);
 		activityLabelsRespondedExistence.add(event);
 		
 		if(snapCollection.containsKey(event)){
-			snapCollection.get(event).add(attribute);
-			if(snapCollection.get(event).size()>5)
+			//snapCollection.get(event).add(attribute);
+			if(snapCollection.get(event).size()>3)
 				snapCollection.get(event).removeFirst();
+			
+			snapCollection.get(event).add(attribute);
 		}else{
 			LinkedList<HashMap<String, Object>> firstSnap = new LinkedList<HashMap<String, Object>>();
 			firstSnap.add(attribute);
@@ -266,17 +185,19 @@ public class RespondedExistence implements LCTemplateReplayer {
 							//if(existingEvent.contains("a-") && event.contains("b-")) ff++;
 							attribute = snapCollection.get(existingEvent).getLast();//.get(snapCollection.get(existingEvent).size()-1);
 							
-							if(nr>1){
+//							if(nr>1){
 								start1 = System.currentTimeMillis();
 								mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, bucketWidth); 
 								stop1 = System.currentTimeMillis();
 								time = time+stop1-start1;
 								en++;
 								nr=1;
-							}
+//							}
 							fulf = true;
 							nr++;
-							snapCollection.get(existingEvent).removeLast();//.remove(snapCollection.get(existingEvent).size()-1);							
+							
+							if(snapCollection.get(event).size()>3)
+								snapCollection.get(existingEvent).removeLast();//.remove(snapCollection.get(existingEvent).size()-1);							
 						}
 						//fulfillment existingEvent+event
 						if(secondElement!=null){
@@ -309,15 +230,16 @@ public class RespondedExistence implements LCTemplateReplayer {
 								fulf = true;
 								nr++;
 								
-								if(nr>1){
+//								if(nr>1){
 									start2 = System.currentTimeMillis();
 									mod.addObservation(event,existingEvent, myAttr, attribute, attIndex, 0, bucketWidth);
 									stop2 = System.currentTimeMillis();
 									time = time+stop2-start2;
 									en++;
 									nr=1;	
-								}
-								snapCollection.get(event).removeLast();//.remove(snapCollection.get(event).size()-1);					
+//								}
+									if(snapCollection.get(event).size()>3)
+										snapCollection.get(event).removeLast();//.remove(snapCollection.get(event).size()-1);					
 							}
 							//fulfillment event+existingEvent
 							secondElement.put(existingEvent, 0);
@@ -344,15 +266,16 @@ public class RespondedExistence implements LCTemplateReplayer {
 						attribute = snapCollection.get(firstElement).getLast();//.get(snapCollection.get(firstElement).size()-1);					
 						fulf = true;
 						nr++;
-						if(nr>1){
+//						if(nr>1){
 							start3 = System.currentTimeMillis();
 							mod.addObservation(firstElement, event, myAttr, attribute, attIndex, 0, bucketWidth);	
 							stop3 = System.currentTimeMillis();
 							time = time+stop3-start3;
 							en++;
 							nr=1;	
-						}
-						snapCollection.get(firstElement).removeLast();//.remove(snapCollection.get(firstElement).size()-1);
+//						}
+							if(snapCollection.get(event).size()>3)	
+								snapCollection.get(firstElement).removeLast();//.remove(snapCollection.get(firstElement).size()-1);
 					}
 					//fulfillment firstElement+Event
 					secondElement.put(event, 0);
@@ -384,16 +307,17 @@ public class RespondedExistence implements LCTemplateReplayer {
 								attribute = snapCollection.get(event).getLast();//.get(snapCollection.get(event).size()-1);						
 								fulf = true;
 								nr++;
-								if(nr>1){
+//								if(nr>1){
 									start4 = System.currentTimeMillis();
 									mod.addObservation(event, second, myAttr, attribute, attIndex, 0, bucketWidth);
 									stop4 = System.currentTimeMillis();
 									time = time+stop4-start4;
 									en++;
 									nr=1;	
-								}					
+//								}					
 								//modello.addObservation(event, second, currentBucket, bucketWidth, fulf);
-								snapCollection.get(event).removeLast();//.remove(snapCollection.get(event).size()-1);
+								if(snapCollection.get(event).size()>3)
+									snapCollection.get(event).removeLast();//.remove(snapCollection.get(event).size()-1);
 							}
 							//fulfillment event+second
 							secondElement.put(second, 0);
@@ -426,27 +350,27 @@ public class RespondedExistence implements LCTemplateReplayer {
 //					if(!pendingForThisTrace.get(firstElement).get(secondElement).equals(0)){
 //						int numPend = pendingForThisTrace.get(firstElement).size();
 //						for(int i = 0; i<=numPend; i++){
-							if(snapCollection.get(firstElement).size()>0){
-							attribute = snapCollection.get(firstElement).getLast();//.get(snapCollection.get(firstElement).size()-1);
-							fulf = false;
-							nr++;
-							
-							if(nr>1){
-								start5 = System.currentTimeMillis();
-								mod.addObservation(firstElement, secondElement, myAttr, attribute, attIndex, 1, bucketWidth);
-								stop5 = System.currentTimeMillis();
-								time = time+stop5-start5;
-								en++;
-								nr=1;	
-							}
-							snapCollection.get(firstElement).removeLast();//.remove(snapCollection.get(firstElement).size()-1);	
-							}
+					if(snapCollection.get(firstElement).size()>1 && mod.mm.get(firstElement).containsKey(secondElement)){
+						attribute = snapCollection.get(firstElement).getLast();//.get(snapCollection.get(firstElement).size()-1);
+						fulf = false;
+						nr++;
+
+						//if(nr>1){
+						start5 = System.currentTimeMillis();
+						mod.addObservation(firstElement, secondElement, myAttr, attribute, attIndex, 1, bucketWidth);
+						stop5 = System.currentTimeMillis();
+						time = time+stop5-start5;
+						en++;
+						nr=1;	
+						//}
+						snapCollection.get(firstElement).removeLast();//.remove(snapCollection.get(firstElement).size()-1);	
+					}
 //						}
 //					}						
 				}
 			}
 		}
-		
+
 		if(activityLabelsRespondedExistence.size()>10)
 			activityLabelsRespondedExistence.removeFirst();
 		
@@ -463,11 +387,15 @@ public class RespondedExistence implements LCTemplateReplayer {
 //				System.out.println(mc.get(aEvent).get(bEvent).getElement0());
 //				System.out.println(mc.get(aEvent).get(bEvent).getElement1());
 				printout.println(mod.mm.get(aEvent).get(bEvent).getElement1());
+				printout.println("\nCorrect Fulfillment = "+mod.value.get(aEvent+"-"+bEvent)[0]+
+						"\nUncorrect Fulfillment = "+mod.value.get(aEvent+"-"+bEvent)[1]+
+						"\nCorrect Violation = "+mod.value.get(aEvent+"-"+bEvent)[2]+
+						"\nUncorrect Violation = "+mod.value.get(aEvent+"-"+bEvent)[3]+"\n");
 			}
 		}	
-			System.out.println("RespExist");
-			printout.flush();
-			printout.close();
+		//System.out.println("RespExist");
+		printout.flush();
+		printout.close();
 	}
 	
 	public static boolean isNumeric(String str)  

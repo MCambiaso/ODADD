@@ -7,6 +7,8 @@ import java.util.List;
 import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XTrace;
 
+import com.yahoo.labs.samoa.instances.Attribute;
+
 import Constraints.AlternatePrecedence;
 import Constraints.ChainResponse;
 import Constraints.AlternateResponse;
@@ -26,7 +28,7 @@ public class LCReplayer {
 		replayers.add(new ChainResponse());
 		replayers.add(new Precedence());
 		replayers.add(new Response());
-		replayers.add(new RespondedExistence());
+//		replayers.add(new RespondedExistence());
 
 //		replayers.add(new Succession());
 //		replayers.add(new CoExistence());
@@ -77,6 +79,12 @@ public class LCReplayer {
 	public void results() {
 		for(LCTemplateReplayer t : replayers) {
 			t.results();
+		}
+	}
+	
+	public void setAttribute(Attribute[] allAttr, int[] indVal, double[] attVal) {
+		for(LCTemplateReplayer t : replayers) {
+			t.setAttribute(allAttr, indVal, attVal);
 		}
 	}
 	

@@ -6,6 +6,8 @@ import java.util.HashMap;
 import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XTrace;
 
+import com.yahoo.labs.samoa.instances.Attribute;
+
 public interface LCTemplateReplayer {
 
 	/**
@@ -36,6 +38,7 @@ public interface LCTemplateReplayer {
 	 * @param currentBucket
 	 */
 	public void results();
+	public void setAttribute(Attribute[] allAttr, int[] indVal, double[] attVal);
 
 	/**
 	 * 

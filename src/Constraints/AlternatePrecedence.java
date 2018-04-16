@@ -26,7 +26,7 @@ import Utils.Utils;
 public class AlternatePrecedence implements LCTemplateReplayer {
 	
 	private HashMap<String, Object> attribute;
-	ArrayList<Attribute> myAttr = new ArrayList<Attribute>(20);
+	ArrayList<Attribute> myAttr = new ArrayList<Attribute>(64);
 	ArrayList<Attribute> myAttrTr ;
 	private HashMap<String, Integer> attIndex = new HashMap<String, Integer>();
 	
@@ -34,7 +34,8 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 	
 	//private static HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>> mc = new HashMap<String, HashMap<String, Pair<Integer, HoeffdingTree>>>();
 	private static HashMap<String, LinkedList<String>> eventList = new HashMap<String, LinkedList<String>>();
-	private LossyModel mod = new LossyModel();
+	private static Attribute[] allAttr;
+	private LossyModel mod;
 	int nr = 0, en=0, cc=10;
 
 	//private HashSet<String> activityLabelsAltPrecedence = new HashSet<String>();
@@ -44,7 +45,7 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 	private LossyCounting<HashMap<String, HashMap<String, Integer>>> satisfactionsConstraintsPerTrace = new LossyCounting<HashMap<String, HashMap<String, Integer>>>();
 	private LossyCounting<HashMap<String, HashMap<String, Boolean>>> isDuplicatedActivationPerTrace = new LossyCounting<HashMap<String, HashMap<String, Boolean>>>();
 
-	File file = new File("/home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/Results/OutAltPrecedence.txt");
+	File file = new File("/home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/SynteticResults/OutAltPrecedence.txt");
 	FileWriter fw = null;
 	BufferedWriter brf;
 	static PrintWriter printout;{			
@@ -78,6 +79,11 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	public void setAttribute(Attribute[] allAttr, int[] indVal, double[] attVal){
+		mod = new LossyModel(allAttr, indVal, attVal);
 	}
 
 	@Override
@@ -201,12 +207,12 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 		
 		for(XAttribute attr : eve.getAttributes().values()){
 			if(!attribute.containsKey(attr.getKey())){        
-				if(isNumeric(attr.toString()) && !attr.getKey().equals("Activity code") && !attr.getKey().equals("Specialism code")){
-					double d = Double.parseDouble(attr.toString());
-					attribute.put(attr.getKey(), d); 
-				}else{
+//				if(isNumeric(attr.toString()) && !attr.getKey().equals("Activity code") && !attr.getKey().equals("Specialism code")){
+//					double d = Double.parseDouble(attr.toString());
+//					attribute.put(attr.getKey(), d); 
+//				}else{
 					attribute.put(attr.getKey(), attr.toString());
-				}								
+//				}								
 			}else if(attribute.containsKey(attr.getKey())){               //!attr.getKey().contains(":") && 
 				attribute.remove(attr.getKey());
 				attribute.put(attr.getKey(), attr.toString());
@@ -216,18 +222,27 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 		}		
 		
 		for(XAttribute attr : tr.getAttributes().values()){
-//			if(!myAttrTr.contains(attr.getKey())){
-//				myAttrTr.add(new Attribute(attr.getKey(), nomin.get(attr.getKey())));
-//			}		
+			if(!attribute.containsKey(attr.getKey())){        
+//				if(isNumeric(attr.toString()) && !attr.getKey().equals("Activity code") && !attr.getKey().equals("Specialism code")){
+//					double d = Double.parseDouble(attr.toString());
+//					attribute.put(attr.getKey(), d); 
+//				}else{
+					attribute.put(attr.getKey(), attr.toString());
+//				}								
+			}else if(attribute.containsKey(attr.getKey())){               //!attr.getKey().contains(":") && 
+				attribute.remove(attr.getKey());
+				attribute.put(attr.getKey(), attr.toString());
+			}		
 			int l = nomin.get(attr.getKey()).indexOf(attr.toString());
 			attIndex.put(attr.getKey(), l);
 		}
 		
-		for(Attribute attr : myAttr){
-			if(!attIndex.containsKey(attr.name()) && !attr.name().equals("class")){
-				attIndex.put(attr.name(), 0);//nomin.get(attr.name()).indexOf("0"));
-			}
-		}
+//		for(Attribute attr : myAttr){
+//			if(!attIndex.containsKey(attr.name()) && !attr.name().equals("class") && !attr.name().contains("data")){
+//				attIndex.put(attr.name(), nomin.get(attr.name()).indexOf("0"));
+//			}
+//		}
+		
 		
 		String caseId = Utils.getCaseID(tr);
 		String event = Utils.getActivityName(eve);
@@ -403,12 +418,16 @@ public class AlternatePrecedence implements LCTemplateReplayer {
 		for(String aEvent : mod.mm.keySet()){ 
 			for(String bEvent : mod.mm.get(aEvent).keySet()){
 				printout.println("@@@@@@@@@@@@@@@@@@@@@@@@\n"+aEvent+"//"+bEvent+"\n@@@@@@@@@@@@");
-				printout.println(mod.mm.get(aEvent).get(bEvent).getElement1());
+				printout.println(mod.mm.get(aEvent).get(bEvent).getElement1().getModel());
+				printout.println("\nCorrect Fulfillment = "+mod.value.get(aEvent+"-"+bEvent)[0]+
+						"\nUncorrect Fulfillment = "+mod.value.get(aEvent+"-"+bEvent)[1]+
+						"\nCorrect Violation = "+mod.value.get(aEvent+"-"+bEvent)[2]+
+						"\nUncorrect Violation = "+mod.value.get(aEvent+"-"+bEvent)[3]+"\n");
 			}
 		}	
-			System.out.println("AltPrec");
-			printout.flush();
-			printout.close();
+		//System.out.println("AltPrec");
+		printout.flush();
+		printout.close();
 	}
 	
 	public static boolean isNumeric(String str)  
