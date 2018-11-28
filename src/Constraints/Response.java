@@ -102,8 +102,10 @@ public class Response implements LCTemplateReplayer {
 		ArrayList<String> classe = new ArrayList<String>(2);
 		classe.add("FULFILLMENT");
 		classe.add("VIOLATION");
-		
+		//System.out.println(Utils.getActivityName(eve));
 		for(XAttribute attr : eve.getAttributes().values()){
+			if(!attr.getKey().contains("concept") && !attr.getKey().contains("stream:lifecycle") && !attr.getKey().contains("time:timestamp")){
+				//System.out.println(attr.getKey());
 			if(!attribute.containsKey(attr.getKey())){        
 //				if(isNumeric(attr.toString()) && !attr.getKey().equals("Activity code") && !attr.getKey().equals("Specialism code")){
 //					double d = Double.parseDouble(attr.toString());
@@ -117,22 +119,26 @@ public class Response implements LCTemplateReplayer {
 			}	
 			int l = nomin.get(attr.getKey()).indexOf(attr.toString());
 			attIndex.put(attr.getKey(), l);
+			}
 		}		
 		
-		for(XAttribute attr : tr.getAttributes().values()){			
-			if(!attribute.containsKey(attr.getKey())){        
-//				if(isNumeric(attr.toString()) && !attr.getKey().equals("Activity code") && !attr.getKey().equals("Specialism code")){
-//					double d = Double.parseDouble(attr.toString());
-//					attribute.put(attr.getKey(), d); 
-//				}else{
+		for(XAttribute attr : tr.getAttributes().values()){
+			if(!attr.getKey().contains("concept") && !attr.getKey().contains("stream:lifecycle") && !attr.getKey().contains("time:timestamp")){
+				//System.out.println(attr.getKey());		
+				if(!attribute.containsKey(attr.getKey())){        
+					//				if(isNumeric(attr.toString()) && !attr.getKey().equals("Activity code") && !attr.getKey().equals("Specialism code")){
+					//					double d = Double.parseDouble(attr.toString());
+					//					attribute.put(attr.getKey(), d); 
+					//				}else{
 					attribute.put(attr.getKey(), attr.toString());
-//				}								
-			}else if(attribute.containsKey(attr.getKey())){               //!attr.getKey().contains(":") && 
-				attribute.remove(attr.getKey());
-				attribute.put(attr.getKey(), attr.toString());
-			}		
-			int l = nomin.get(attr.getKey()).indexOf(attr.toString());
-			attIndex.put(attr.getKey(), l);
+					//				}								
+				}else if(attribute.containsKey(attr.getKey())){               //!attr.getKey().contains(":") && 
+					attribute.remove(attr.getKey());
+					attribute.put(attr.getKey(), attr.toString());
+				}		
+				int l = nomin.get(attr.getKey()).indexOf(attr.toString());
+				attIndex.put(attr.getKey(), l);
+			}
 		}
 		
 //		for(Attribute attr : myAttr){
@@ -310,7 +316,9 @@ public class Response implements LCTemplateReplayer {
 						//int numPend = pendingForThisTrace.get(firstElement).get(secondElement);
 						////for(int i = 0; i<snapCollection.get(firstElement).size(); i++){
 						//System.out.println("Response violation 2");
-						if(snapCollection.get(firstElement).size()>1 && mod.mm.get(firstElement).containsKey(secondElement)){
+						//int pp = mod.mm.get(firstElement).size();
+						boolean bb = mod.mm.get(firstElement).isEmpty();
+						if(snapCollection.get(firstElement).size()>=1 && mod.mm.get(firstElement).containsKey(secondElement)){
 							attribute = snapCollection.get(firstElement).getLast();//.get(snapCollection.get(firstElement).size()-1);
 							fulf = false;
 							nr++;
@@ -343,7 +351,8 @@ public class Response implements LCTemplateReplayer {
 	public void results(){
 		for(String aEvent : mod.mm.keySet()){ 
 			for(String bEvent : mod.mm.get(aEvent).keySet()){
-				printout.println("@@@@@@@@@@@@@@@@@@@@@@@@\n"+aEvent+"//"+bEvent+"\n@@@@@@@@@@@@");
+				System.out.println(mod.mm.get(aEvent).get(bEvent).getElement1());
+				printout.println("@@@@@@@@@@@@@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
 				printout.println(mod.mm.get(aEvent).get(bEvent).getElement1());
 				printout.println("\nCorrect Fulfillment = "+mod.value.get(aEvent+"-"+bEvent)[0]+
 						"\nUncorrect Fulfillment = "+mod.value.get(aEvent+"-"+bEvent)[1]+

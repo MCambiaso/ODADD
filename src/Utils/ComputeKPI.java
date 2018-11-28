@@ -21,7 +21,7 @@ public class ComputeKPI {
 
 		for(i = 0; i < 7; i++){
 			String FILENAME = "/home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/SynteticResults/"+name[i]+".txt";///home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/Results
-			File file = new File("/home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/SynteticResults/KPI_"+name[i]+".csv");
+			File file = new File("/home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/SynteticResults/SKPI_"+name[i]+".csv");
 			FileWriter fw = null;
 			BufferedWriter brf;
 			PrintWriter printout;{			
@@ -52,6 +52,7 @@ public class ComputeKPI {
 				//printout.println("***\na --> activation\nf --> fulfillment\nv --> violation\nfa --> activation only for fulfillment\nff --> fulfillment only for fulfillment\nfv --> violation only for fulfillment\n***\n");
 				//printout.println("Rule;Activation;Correct fulfillment;Uncorrect fulfillment;Correct Violation;Uncorrect Violation;Fulfillment Ratio;Fulfillment No Data;Violation No Data;Fulfillment ratio No Data");
 //				printout.println("Rule;Fulfillment Ratio;Fulfillment ratio No Data");
+				printout.println("Rule;Precision;Recall;FulfNoData;FulfRatioNoData");
 				
 				while ((sCurrentLine = br.readLine()) != null) {						
 					if(sCurrentLine.contains("@@@@@@@@@@@@@@@@@@@@@@@@")){
@@ -77,20 +78,30 @@ public class ComputeKPI {
 								//printout.println("\nSplit Attribute: "+attr+"\n");
 								if(a<(f+v))
 									min=true;
-								printout.println("----------------");
-								printout.println("\nRule: "+nameRule+"\n");
-								printout.println("Activations = "+a);
-								printout.println("\nCorrect fulfillment = "+cf+"\nUncorrect Fulfillment = "+uf+"\nCorrect Violation = "+cv+"\nUncorrect Violation = "+uv);
-								printout.println("Fulfillment Ratio = "+(cf/(cf+uf)));
-								printout.println("\nSenza dati");
-								printout.println("Fulfillment = "+(cf+uf)+"\nViolation = "+(cv+uv));
-								printout.println("Fulfillment ratio = "+((cf+uv)/a));
+//								printout.println("----------------");
+//								printout.println("\nRule: "+nameRule+"\n");
+//								printout.println("Activations = "+a);
+//								printout.println("\nCorrect fulfillment = "+cf+"\nUncorrect Fulfillment = "+uf+"\nCorrect Violation = "+cv+"\nUncorrect Violation = "+uv);
+//								printout.println("Fulfillment Ratio = "+(cf/(cf+uf)));
+//								printout.println("\nSenza dati");
+//								printout.println("Fulfillment = "+(cf+uf)+"\nViolation = "+(cv+uv));
+//								printout.println("Fulfillment ratio = "+((cf+uv)/a));
+//								
+								// VECCHIO
 								//printout.println(nameRule+";"+a+";"+cf+";"+uf+";"+cv+";"+uv+";"+(cf/(cf+uf))+";"+(cf+uf)+";"+(cv+uv)+";"+((cf+uv)/a));
 //								printout.println(nameRule+";"+(cf/(cf+uf))+";"+((cf+uv)/a));
 								//printout.println("a = "+a+"\tf = "+f+"\tv = "+v+"\tf/a = "+(f/a));
 								//printout.println("fa = "+(ff+fv)+"\tff = "+ff+"\tfv = "+fv+"\tff/fa = "+(ff/(ff+fv))+"\tff/a = "+(ff/a));
 //								printout.println("Activ a:\t"+a);
 //								printout.println("Activ f+v:\t"+(f+v));
+								
+								double prec = cf/(cf+uv);
+								double recall = cf/(cf+uf);
+								double fulfNoData = (cf+uf);
+								double fulfRatioNoData = fulfNoData/(fulfNoData+cv+uv);  
+								
+								printout.println(nameRule+";"+prec+";"+recall+";"+fulfNoData+";"+fulfRatioNoData);//+";"+(cf+uv)+";"+cf+";"+uf+";"+cv+";"+uv+";"+(cf/(cf+uf))+";"+a+";"+(cf+uf)+";"+(cv+uv)+";"+((cf+uf)/a));
+								
 							}
 						}
 						if(l1.contains(".")){
@@ -190,10 +201,10 @@ public class ComputeKPI {
 
 				}
 			}
-			System.out.println(min);
+			//System.out.println(min);
 		}
 
-		System.out.println("Fine");
+		//System.out.println("Fine");
 	}
 	
 	public static double formatting(String ll){

@@ -39,7 +39,7 @@ public class Entry {
 	private static HashMap<String, ArrayList<String>> nominal = new HashMap<String, ArrayList<String>>();
 	protected static OSXMLConverter converter = new OSXMLConverter();
 	private static LCReplayer replayer = new LCReplayer();
-	private static int bucketWidth=500;
+	private static int bucketWidth=100000;//500
 	
 	static Attribute[] attlist;			
 	static int[] indVal;
@@ -47,8 +47,12 @@ public class Entry {
 	
 //	private static String path = "/home/matte/Scaricati/CompleteHospital"; ///
 //	private static String path = "/home/matte/Scaricati/HL"; ///
-	private static String path = "/home/matte/Scaricati/40x20x5000";
+//	private static String path = "/home/matte/Scaricati/40x20x5000";
 //	private static String path = "/home/matte/workspace/OnlineDataAwareDeclareDiscovery/test/Log/logTest3";
+//	private static String path = "/home/matte/Scaricati/EPL2"; 
+//	private static String path = "/home/matte/Scaricati/PRECN";
+//	private static String path = "/home/matte/Scaricati/RESP";
+	private static String path = "/home/matte/Scaricati/L1";
 	
 	
 	public Entry() {
@@ -101,7 +105,7 @@ public class Entry {
 		System.out.println("\nCompute KPI");		
 		log.println("\nCompute KPI");
 		
-		ComputeKPI.ComputeKpi();
+		//ComputeKPI.ComputeKpi();
 		
 		System.out.println("Fine");
 		log.println("Fine");
@@ -125,6 +129,7 @@ public class Entry {
 			XTrace t = (XTrace) converter.fromXML(str);
 			XEvent event = t.get(0);
 			String caseId = Utils.getCaseID(t);
+			//String caseId = "casa";
 //			String activity = Utils.getActivityName(event);
 			ne++;
 			int currentBucket = (int)((double)ne / (double)bucketWidth);
@@ -135,7 +140,7 @@ public class Entry {
 			
 			//System.out.println(ne);
 			
-			if(ne%10000==0){
+			if(ne%100==0){
 				//System.out.println(ne);
 				System.out.print("\n"+ne+"\t--Time:\t"+(System.currentTimeMillis()-start));
 				//log.println(ne);
@@ -148,7 +153,7 @@ public class Entry {
 
 			// events cleanup
 			if (ne % bucketWidth == 0) {
-				replayer.cleanup(currentBucket);
+				//replayer.cleanup(currentBucket);
 			}
 		}
 		br.close();
@@ -168,34 +173,38 @@ public class Entry {
 			String str = "";
 			while ((str = br.readLine()) != null) {
 				
-				if(i%10000==0){
-					System.out.print(i/10000+"  ");
+				if(i%100==0){
+					System.out.print(i/100+"  ");
 				}
 				
 				XTrace t = (XTrace) converter.fromXML(str);
 				XEvent event = t.get(0);
 				
 				for(XAttribute attr : event.getAttributes().values()){//500*19.74
-					if(nominal.containsKey(attr.getKey())){
-						if(!nominal.get(attr.getKey()).contains(attr.toString()))
-							nominal.get(attr.getKey()).add(attr.toString());
-
-					}else{
-						ArrayList<String> nl = new ArrayList<String>();
-						nl.add(attr.toString());
-						nominal.put(attr.getKey(), nl);
-
+					if(!attr.getKey().contains("concept") && !attr.getKey().contains("stream:lifecycle") && !attr.getKey().contains("time:timestamp")){
+						//System.out.println(attr.getKey());
+						if(nominal.containsKey(attr.getKey())){
+							if(!nominal.get(attr.getKey()).contains(attr.toString()))
+								nominal.get(attr.getKey()).add(attr.toString());
+						}else{
+							ArrayList<String> nl = new ArrayList<String>();
+							nl.add(attr.toString());
+							nominal.put(attr.getKey(), nl);
+						}
 					}
 				}
 				
 				for(XAttribute tAttr : t.getAttributes().values()){
-					if(nominal.containsKey(tAttr.getKey())){
-						if(!nominal.get(tAttr.getKey()).contains(tAttr.toString()))
-							nominal.get(tAttr.getKey()).add(tAttr.toString());
-					}else{
-						ArrayList<String> nl = new ArrayList<String>();
-						nl.add(tAttr.toString());
-						nominal.put(tAttr.getKey(), nl);
+					if(!tAttr.getKey().contains("concept") && !tAttr.getKey().contains("stream:lifecycle") && !tAttr.getKey().contains("time:timestamp")){
+						//System.out.println(tAttr.getKey());
+						if(nominal.containsKey(tAttr.getKey())){
+							if(!nominal.get(tAttr.getKey()).contains(tAttr.toString()))
+								nominal.get(tAttr.getKey()).add(tAttr.toString());
+						}else{
+							ArrayList<String> nl = new ArrayList<String>();
+							nl.add(tAttr.toString());
+							nominal.put(tAttr.getKey(), nl);
+						}
 					}
 				}
 
@@ -219,8 +228,9 @@ public class Entry {
 				//if(!name.equals("lifecycle:transition")&&!name.equals("time:timestamp")&&!name.equals("stream:lifecycle:trace-transition")&&!name.equals("concept:name")&&!name.equals("org:group")){
 					List<String> atli = nominal.get(name);
 					Attribute attrs;//controllo tutti i possibili attributi se sono solo numeri ok numeric 
-					if(name.contains("Age") || name.contains("data")){
+					if(name.contains("Age") || name.contains("data") || name.contains("EventAttribute")){
 						attrs = new Attribute(name);
+						//System.out.println(name);
 					}else{
 						attrs = new Attribute(name, atli);
 					}

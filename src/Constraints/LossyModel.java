@@ -42,6 +42,8 @@ public class LossyModel {
 		attIndex = attInd;
 		bucket = bucketWidth;
 		
+		//System.out.print(eventA+"-"+eventB);
+		
 		SparseInstance ins;
 		//Instance ins = createInstance(eventA+"-"+eventB, classif);
 		if(instsList.keySet().contains(eventA+"-"+eventB)){			
@@ -215,15 +217,16 @@ public class LossyModel {
 			//String str = attr[i].name();
 			//String str1 = attribute.get(attr[i].name().toString()).toString();
 			//System.out.println(attr[i].name());
-			if(!attr[i].name().equals("time:timestamp") && !attr[i].name().contains("date") ){
+			if(!attr[i].name().equals("time:timestamp") && !attr[i].name().contains("date") && !attr[i].name().contains("concept")){
 				//sp.setValue(i, indexVal);
 				if(attribute.containsKey(attr[i].name())){					
 					String attribut = attribute.get(attr[i].name()).toString();
 					//if(attribut.equals(nameAtt)){
 					//System.out.println("ok");
 						
-						if(attr[i].name().contains("Age")){//
+						if(attr[i].name().contains("EventAttribute")){//Age
 							double tt = Double.parseDouble(attribute.get(attr[i].name()).toString());
+							//System.out.println(tt);
 							//double tt = (double) attribute.get(attr[i].name().toString());
 							sp.setValue(i, tt);
 						}else{
@@ -268,7 +271,7 @@ public class LossyModel {
 			}else{
 				if(attribute.containsKey(attrName)){
 					//System.out.println(isNumeric(attribute.get(attrName).toString()));
-					if(!isNumeric(attribute.get(attrName).toString())|| attrName.equals("Activity code") || attrName.equals("Specialism code") ){//
+					if(!isNumeric(attribute.get(attrName).toString()) || attrName.equals("Activity code") || attrName.equals("Specialism code") ){//
 						//					instanceValue[n] = attIndex.get(attrName);
 						
 						instance.setValue(attr, attIndex.get(attrName));
@@ -277,7 +280,7 @@ public class LossyModel {
 						double tt = (double) attribute.get(attrName);
 						//					instanceValue[n] = tt; //(double) attribute.get(attrName);
 						instance.setValue(n, tt);
-						System.out.println(isNumeric(attribute.get(attrName).toString()));
+						//System.out.println(isNumeric(attribute.get(attrName).toString()));
 					}
 				}
 

@@ -22,12 +22,12 @@ public class LCReplayer {
 	List<LCTemplateReplayer> replayers = new ArrayList<LCTemplateReplayer>();
 	
 	public LCReplayer() {
-		replayers.add(new AlternatePrecedence());
-		replayers.add(new AlternateResponse());
-		replayers.add(new ChainPrecedence());
-		replayers.add(new ChainResponse());
+//		replayers.add(new AlternatePrecedence());
+//		replayers.add(new AlternateResponse());
+//		replayers.add(new ChainPrecedence());
+//		replayers.add(new ChainResponse());
 		replayers.add(new Precedence());
-		replayers.add(new Response());
+//		replayers.add(new Response());
 //		replayers.add(new RespondedExistence());
 
 //		replayers.add(new Succession());

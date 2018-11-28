@@ -34,7 +34,7 @@ public class Precedence implements LCTemplateReplayer {
 	private static HashMap<String, LinkedList<String>> eventList = new HashMap<String, LinkedList<String>>();
 	private LossyModel mod;// = new LossyModel();
 
-	int nr = 0, en=0, cc=10;
+	int nr = 0, en=0, cc=10, n=0;
 	
 	private LinkedList<String> activityLabels = new LinkedList<String>();
 	private HashSet<String> activityLabelsPrecedence = new HashSet<String>();
@@ -98,39 +98,45 @@ public class Precedence implements LCTemplateReplayer {
 		ArrayList<String> classe = new ArrayList<String>(2);
 		classe.add("FULFILLMENT");
 		classe.add("VIOLATION");
-		
+		//System.out.println(Utils.getActivityName(eve));
 		//************* Formatting the attribute for hoeffding tree **********
 		for(XAttribute attr : eve.getAttributes().values()){
-			if(!attribute.containsKey(attr.getKey())){        
-//				if(isNumeric(attr.toString()) && !attr.getKey().equals("Activity code") && !attr.getKey().equals("Specialism code")){
-//					
-//					//double d = Double.parseDouble(attr.toString());
-//					attribute.put(attr.getKey(), attr.toString()); 
-//				}else{
+			if(!attr.getKey().contains("concept") && !attr.getKey().contains("stream:lifecycle") && !attr.getKey().contains("time:timestamp")){
+				
+				if(!attribute.containsKey(attr.getKey())){        
+					//				if(isNumeric(attr.toString()) && !attr.getKey().equals("Activity code") && !attr.getKey().equals("Specialism code")){
+					//					
+					//					//double d = Double.parseDouble(attr.toString());
+					//					attribute.put(attr.getKey(), attr.toString()); 
+					//				}else{
 					attribute.put(attr.getKey(), attr.toString());
-//				}								
-			}else if(attribute.containsKey(attr.getKey())){               //!attr.getKey().contains(":") && 
-				attribute.remove(attr.getKey());
-				attribute.put(attr.getKey(), attr.toString());
-			}	
-			int l = nomin.get(attr.getKey()).indexOf(attr.toString());
-			attIndex.put(attr.getKey(), l);
+					//				}								
+				}else if(attribute.containsKey(attr.getKey())){               //!attr.getKey().contains(":") && 
+					attribute.remove(attr.getKey());
+					attribute.put(attr.getKey(), attr.toString());
+				}	
+				int l = nomin.get(attr.getKey()).indexOf(attr.toString());
+				attIndex.put(attr.getKey(), l);
+			}
 		}		
 		
-		for(XAttribute attr : tr.getAttributes().values()){			
-			if(!attribute.containsKey(attr.getKey())){        
-//				if(isNumeric(attr.toString()) && !attr.getKey().equals("Activity code") && !attr.getKey().equals("Specialism code")){
-//					double d = Double.parseDouble(attr.toString());
-//					attribute.put(attr.getKey(), d); 
-//				}else{
+		for(XAttribute attr : tr.getAttributes().values()){
+			if(!attr.getKey().contains("concept") && !attr.getKey().contains("stream:lifecycle") && !attr.getKey().contains("time:timestamp")){
+				//System.out.println(attr.getKey());		
+				if(!attribute.containsKey(attr.getKey())){        
+					//				if(isNumeric(attr.toString()) && !attr.getKey().equals("Activity code") && !attr.getKey().equals("Specialism code")){
+					//					double d = Double.parseDouble(attr.toString());
+					//					attribute.put(attr.getKey(), d); 
+					//				}else{
 					attribute.put(attr.getKey(), attr.toString());
-//				}								
-			}else if(attribute.containsKey(attr.getKey())){               //!attr.getKey().contains(":") && 
-				attribute.remove(attr.getKey());
-				attribute.put(attr.getKey(), attr.toString());
-			}		
-			int l = nomin.get(attr.getKey()).indexOf(attr.toString());
-			attIndex.put(attr.getKey(), l);
+					//				}								
+				}else if(attribute.containsKey(attr.getKey())){               //!attr.getKey().contains(":") && 
+					attribute.remove(attr.getKey());
+					attribute.put(attr.getKey(), attr.toString());
+				}		
+				int l = nomin.get(attr.getKey()).indexOf(attr.toString());
+				attIndex.put(attr.getKey(), l);
+			}
 		}
 		
 //		for(Attribute attr : myAttr){
@@ -142,7 +148,11 @@ public class Precedence implements LCTemplateReplayer {
 		
 		//********** Mining fulfillment/violation **********
 		String caseId = Utils.getCaseID(tr);
+		//String caseId = "casa";
 		String event = Utils.getActivityName(eve);
+		
+		if(caseId.equals("case_494"))
+			n++;
 		
 		LinkedList<String> list = new LinkedList<String>();
 		if(eventList.containsKey(caseId))
@@ -154,6 +164,8 @@ public class Precedence implements LCTemplateReplayer {
 		activityLabels.add(event);
 		
 		HashMap<String, Integer> counter = new HashMap<String, Integer>();
+		//System.out.println(caseId);
+		//System.out.println(event);
 		if (!activityLabelsCounterPrecedence.containsKey(caseId)) {
 			activityLabelsCounterPrecedence.putItem(caseId, counter);
 		} else {
@@ -166,10 +178,11 @@ public class Precedence implements LCTemplateReplayer {
 		} else {
 			fulfilledForThisTrace = fulfilledConstraintsPerTrace.getItem(caseId);
 		}		
-		
+		//System.out.print(caseId+"\t"+event);
 		if (activityLabels.size()>1){//activityLabelsPrecedence.size() > 1) {//list.size()>1){/
-			for (String existingEvent : activityLabels){//activityLabelsPrecedence) {//list){//
+			for (String existingEvent : activityLabels){//activityLabelsPrecedence) {//list){//				
 				if (!existingEvent.equals(event)) {
+					//System.out.print(Utils.getActivityName(eve));					
 					HashMap<String, Integer> secondElement = new HashMap<String, Integer>();
 					int fulfillments = 0;
 					if (fulfilledForThisTrace.containsKey(existingEvent)) {
@@ -183,24 +196,25 @@ public class Precedence implements LCTemplateReplayer {
 						fulfilledForThisTrace.put(existingEvent, secondElement);
 
 						fulf = true;
-						nr++;
+						//nr++;
 
-						if(nr>1){
-							start1 = System.currentTimeMillis();
+						//if(nr>1){
+				      			start1 = System.currentTimeMillis();
+				      			
 							mod.addObservation(existingEvent, event, myAttr, attribute, attIndex, 0, bucketWidth);
 							stop1 = System.currentTimeMillis();
 							time = time+stop1-start1;
 							en++;
 							nr=1;
-						}														
+						//}														
 					}	
-				}				
+				}							
 			}
-
+			//System.out.print(mod.mm.size());
 			if(mod.mm.containsKey(event)){
 				ArrayList<String> actEve = new ArrayList<String>(mod.mm.get(event).keySet());
 				for(String secEl : actEve){
-					if(!counter.containsKey(secEl)){
+					//if(!counter.containsKey(secEl)){
 						fulf = false;
 						nr++;
 
@@ -212,7 +226,7 @@ public class Precedence implements LCTemplateReplayer {
 							en++;
 							nr=1;	
 						}						
-					}					
+					//}					
 				}
 			}
 			fulfilledConstraintsPerTrace.putItem(caseId, fulfilledForThisTrace);
@@ -236,8 +250,11 @@ public class Precedence implements LCTemplateReplayer {
 			fulfilledConstraintsPerTrace.remove(caseId);
 		}
 		
-		if(activityLabels.size()>10)
-			activityLabels.removeFirst();
+//		if(activityLabels.size()>10)
+//			activityLabels.removeFirst();
+		
+		//if(caseId.equals("case_160"))
+		//	System.out.println(caseId);
 		
 		if(list.size()==10)
 			list.removeFirst();
@@ -246,21 +263,28 @@ public class Precedence implements LCTemplateReplayer {
 		eventList.remove(caseId);
 		eventList.put(caseId, list);
 		
+		
 		//System.out.println(list.size());
 		
 		//*********************** Hoeffding tree **************************
-		mod.clean();
+		//mod.clean();
 		//System.out.println(en);
 		//System.out.println("Pr:\ttprocess:\t"+(System.currentTimeMillis()-start)+"\ttaddObs:\t"+time+"\tnumEv:\t"+en);
 	}
 	
 	@Override
 	public void results(){
+				System.out.println("\nok");
+								
 		for(String aEvent : mod.mm.keySet()){ 
+			System.out.println("\nok 2");
 			for(String bEvent : mod.mm.get(aEvent).keySet()){
+				
 				printout.println("@@@@@@@@@@@@@@@@@@@@@@@@\n"+aEvent+"%"+bEvent+"\n@@@@@@@@@@@@");
 //				System.out.println(mc.get(aEvent).get(bEvent).getElement0());
 //				System.out.println(mc.get(aEvent).get(bEvent).getElement1());
+				System.out.println(mod.mm.get(aEvent).get(bEvent).getElement1());
+				System.out.println(n);
 				printout.println(mod.mm.get(aEvent).get(bEvent).getElement1());
 				printout.println("\nCorrect Fulfillment = "+mod.value.get(aEvent+"-"+bEvent)[0]+
 						"\nUncorrect Fulfillment = "+mod.value.get(aEvent+"-"+bEvent)[1]+
